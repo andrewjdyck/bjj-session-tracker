@@ -13,7 +13,12 @@ function Header({ user }) {
 
   return (
     <header>
-      {user && <button onClick={handleSignOut}>Sign Out</button>}
+      {user && (
+        <div>
+            {/* <span>{user.email}</span> */}
+            <button onClick={handleSignOut}>Sign Out, {user.email}</button>
+        </div>
+        )}
     </header>
   );
 }
