@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 
 const SessionForm = ({ onAddSession }) => {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [sessionType, setSessionType] = useState('');
+  const today = new Date();
+  const numberOfDaysToAdd = -2;
+  const dt = today.setDate(today.getDate() + numberOfDaysToAdd); 
+  const defaultDateValue = new Date(dt).toISOString().split('T')[0]; // yyyy-mm-dd
+  console.log(defaultDateValue);
+  const [date, setDate] = useState(defaultDateValue);
+  const [time, setTime] = useState('19:00');
+  const [sessionType, setSessionType] = useState('no-gi');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,6 +18,9 @@ const SessionForm = ({ onAddSession }) => {
     setTime('');
     setSessionType('');
   };
+
+  
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -24,7 +32,6 @@ const SessionForm = ({ onAddSession }) => {
 
       <label>Session Type:</label>
       <select value={sessionType} onChange={(e) => setSessionType(e.target.value)} required>
-        <option value="">Select Session Type</option>
         <option value="gi">Gi Training</option>
         <option value="no-gi">No-Gi Training</option>
       </select>
