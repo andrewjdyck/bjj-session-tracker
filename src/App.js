@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
-// import {Routes, Route} from 'react-router-dom';
+// import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import Layout from './components/Layout';
 import SessionForm from './components/SessionForm';
 import SessionList from './components/SessionList';
 import SignIn from './components/SignIn';
@@ -22,7 +22,6 @@ function App() {
   // UseEffect for auth state changes
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
-      // console.log('onAuthStateChanged called with currentUser:', currentUser);
       setUser(currentUser);
       // if (currentUser) {
       //   loadUserSessions(currentUser);
@@ -46,7 +45,10 @@ function App() {
         .collection('userSessions')
         .orderBy('date', 'desc')
         .onSnapshot((snapshot) => {
-          const userSessions = snapshot.docs.map((doc) => doc.data());
+          const userSessions = snapshot.docs.map((doc) => ({
+            id: doc.id, // Attach the document ID
+            ...doc.data()
+          }));
           setSessions(userSessions);
         });
     }
@@ -55,9 +57,9 @@ function App() {
     return () => unsubscribeFirestore();
   }, [user]);
 
-  const loadUserSessions = (currentUser) => {
-    // Logic to load user's sessions
-  };
+  // const loadUserSessions = (currentUser) => {
+  //   // Logic to load user's sessions
+  // };
 
   const addSession = async (newSession) => {
     if (user) {
@@ -69,18 +71,30 @@ function App() {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-      // Optional: handle any post-sign-out logic
-    } catch (error) {
-      console.error('Error signing out:', error);
+  const deleteSession = async (sessionId) => {
+    if (user) {
+      try {
+        await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).delete();
+      } catch (error) {
+        console.error('Error deleting session:', error.message);
+      }
+    }
+  };
+  
+  const editSession = async (sessionId, updatedSession) => {
+    if (user) {
+      try {
+        await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).update(updatedSession);
+      } catch (error) {
+        console.error('Error editing session:', error.message);
+      }
     }
   };
 
   return (
+    <Layout user={user}>
     <div className="App">
-      <Header user={user} />
+      {/* <Header user={user} /> */}
       <h1>BJJ Session Tracker</h1>
       {!user ? (
         <div>
@@ -98,12 +112,13 @@ function App() {
         </div>
       ) : (
         <>
-          {/* <button onClick={handleSignOut}>Sign Out</button> */}
           <SessionForm onAddSession={addSession} />
-          <SessionList sessions={sessions} />
+          {/* <SessionList sessions={sessions} /> */}
+          <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} />
         </>
       )}
     </div>
+    </Layout>
   );
 }
 
