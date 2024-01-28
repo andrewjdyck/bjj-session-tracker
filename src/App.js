@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 // import {Routes, Route} from 'react-router-dom';
 import SessionForm from './components/SessionForm';
 import SessionList from './components/SessionList';
-// import SignIn from './components/SignIn';
-// import SignUp from './components/SignUp';
+import SignIn from './components/SignIn';
+import SignUp from './components/SignUp';
+import Header from './components/Header';
 import { auth, firestore } from './firebase';  // Import firestore from firebase.js
 import './App.css';
 
@@ -13,17 +14,19 @@ import './App.css';
 function App() {
   const [user, setUser] = useState(null); // State to store user data
   const [sessions, setSessions] = useState([]);
+  const [authOption, setAuthOption] = useState('signIn'); // or 'signUp'
+
 
   // Set up a listener to update the user state when authentication status changes
   // This listener is called when the app starts and every time a user signs in or out
   // UseEffect for auth state changes
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
-      console.log('onAuthStateChanged called with currentUser:', currentUser);
+      // console.log('onAuthStateChanged called with currentUser:', currentUser);
       setUser(currentUser);
-      if (currentUser) {
-        loadUserSessions(currentUser);
-      }
+      // if (currentUser) {
+      //   loadUserSessions(currentUser);
+      // }
     });
 
     // Cleanup function
@@ -36,7 +39,7 @@ function App() {
     let unsubscribeFirestore = () => {};
 
     if (user) {
-      console.log("useEffect called with user:", user);
+      // console.log("useEffect called with user:", user);
       unsubscribeFirestore = firestore
         .collection('sessions')
         .doc(user.uid)
@@ -66,17 +69,40 @@ function App() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      // Optional: handle any post-sign-out logic
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <div className="App">
+      <Header user={user} />
       <h1>BJJ Session Tracker</h1>
-      {user ? (
+      {!user ? (
         <div>
-          <SessionForm onAddSession={addSession} />
-          <SessionList sessions={sessions} />
+          {authOption === 'signIn' ? (
+            <>
+              <SignIn />
+              <button onClick={() => setAuthOption('signUp')}>Need an account? Sign Up</button>
+            </>
+          ) : (
+            <>
+              <SignUp />
+              <button onClick={() => setAuthOption('signIn')}>Already have an account? Sign In</button>
+            </>
+          )}
         </div>
       ) : (
-        <div>Sign In to view sessions</div>
-      )} 
+        <>
+          {/* <button onClick={handleSignOut}>Sign Out</button> */}
+          <SessionForm onAddSession={addSession} />
+          <SessionList sessions={sessions} />
+        </>
+      )}
     </div>
   );
 }

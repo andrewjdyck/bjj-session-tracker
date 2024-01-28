@@ -1,6 +1,10 @@
 import React from 'react';
 
-const SessionList = ({ sessions }) => {
+function SessionList({ sessions }) {
+  if (!sessions || sessions.length === 0) {
+    return <div>No sessions found</div>;
+  }
+  
   return (
     <div>
       <h2>Session List</h2>
