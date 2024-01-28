@@ -15,7 +15,6 @@ function Header({ user }) {
     <header>
       {user && (
         <div>
-            {/* <span>{user.email}</span> */}
             <button onClick={handleSignOut}>Sign Out, {user.email}</button>
         </div>
         )}
