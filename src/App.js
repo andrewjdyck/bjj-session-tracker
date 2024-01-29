@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, firestore } from './firebase';  // Import firestore from firebase.js
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import UserProfile from './components/UserProfile';
 import Layout from './components/Layout';
@@ -95,31 +95,43 @@ function App() {
   };
 
   return (
-    <Layout user={user}>
-    <div className="App">
-      {!user ? (
-        <div>
-          {authOption === 'signIn' ? (
-            <>
-              <SignIn />
-              <button onClick={() => setAuthOption('signUp')}>Need an account? Sign Up</button>
-            </>
-          ) : (
-            <>
-              <SignUp />
-              <button onClick={() => setAuthOption('signIn')}>Already have an account? Sign In</button>
-            </>
-          )}
-        </div>
-      ) : (
-        <>
-          <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} />
-          {/* <SessionForm onAddSession={addSession} /> */}
-          {/* <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} /> */}
-        </>
-      )}
-    </div>
-    </Layout>
+    <Router>
+      <Layout user={user}>
+        <Routes>
+          <Route path="/" element={user ? <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} /> : <Navigate replace to="/signin" />} />
+          <Route path="/signin" element={!user ? <SignIn /> : <Navigate replace to="/" />} />
+          <Route path="/signup" element={!user ? <SignUp /> : <Navigate replace to="/" />} />
+          <Route path="/profile" element={user ? <UserProfile /> : <Navigate replace to="/signin" />} />
+          {/* Add other routes as needed */}
+        </Routes>
+      </Layout>
+    </Router>
+
+    // <Layout user={user}>
+    // <div className="App">
+    //   {!user ? (
+    //     <div>
+    //       {authOption === 'signIn' ? (
+    //         <>
+    //           <SignIn />
+    //           <button onClick={() => setAuthOption('signUp')}>Need an account? Sign Up</button>
+    //         </>
+    //       ) : (
+    //         <>
+    //           <SignUp />
+    //           <button onClick={() => setAuthOption('signIn')}>Already have an account? Sign In</button>
+    //         </>
+    //       )}
+    //     </div>
+    //   ) : (
+    //     <>
+    //       <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} />
+    //       {/* <SessionForm onAddSession={addSession} /> */}
+    //       {/* <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} /> */}
+    //     </>
+    //   )}
+    // </div>
+    // </Layout>
   );
 }
 

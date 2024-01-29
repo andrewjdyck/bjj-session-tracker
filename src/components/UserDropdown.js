@@ -20,7 +20,7 @@ function UserDropdown( {user} ) {
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
-        <Dropdown.Item href="#/profile">User Profile</Dropdown.Item>
+        <Dropdown.Item as={Link} to="/profile">User Profile</Dropdown.Item>
         {/* <Dropdown.Item href="#/settings">Settings</Dropdown.Item> */}
         <Dropdown.Item onClick={handleSignOut}>Sign Out</Dropdown.Item>
       </Dropdown.Menu>
