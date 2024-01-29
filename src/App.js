@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-// import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { auth, firestore } from './firebase';  // Import firestore from firebase.js
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+import UserProfile from './components/UserProfile';
 import Layout from './components/Layout';
-import SessionForm from './components/SessionForm';
-import SessionList from './components/SessionList';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
-import Header from './components/Header';
-import { auth, firestore } from './firebase';  // Import firestore from firebase.js
+import HomePage from './components/HomePage';
+
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 
@@ -94,8 +97,6 @@ function App() {
   return (
     <Layout user={user}>
     <div className="App">
-      {/* <Header user={user} /> */}
-      <h1>BJJ Session Tracker</h1>
       {!user ? (
         <div>
           {authOption === 'signIn' ? (
@@ -112,9 +113,9 @@ function App() {
         </div>
       ) : (
         <>
-          <SessionForm onAddSession={addSession} />
-          {/* <SessionList sessions={sessions} /> */}
-          <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} />
+          <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} />
+          {/* <SessionForm onAddSession={addSession} /> */}
+          {/* <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} /> */}
         </>
       )}
     </div>
