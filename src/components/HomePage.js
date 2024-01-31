@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 import SessionList from './SessionList';
 import SessionForm from './SessionForm';
+import TotalTime from './TotalTime';
 
 function HomePage( { sessions, onAddSession, onDeleteSession, onEditSession } ) {
 
@@ -12,7 +13,7 @@ function HomePage( { sessions, onAddSession, onDeleteSession, onEditSession } ) 
                 {/* First Row with Two Columns */}
                 <Row>
                     <Col md={6}>
-                        You have logged a total of ..... mat hours!
+                        <TotalTime sessions={sessions} />
                     </Col>
                     <Col md={6}>
                         <h3>Log a training session</h3>
