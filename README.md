@@ -4,9 +4,11 @@ This project is an experiment in building (and learning how to build) a React.js
 
 ## Upcoming features
 
-- Pagination for sessions.
+- Limit session return to last 20 sessions on home page
+- Some aggregate stats on home page. (total mat hours)
 - Styling and layout
 - First release!
+- Pagination for sessions.
 - modal for session editing
 - User profile (rank, club, age, weight, etc.)
 - Session import/export
