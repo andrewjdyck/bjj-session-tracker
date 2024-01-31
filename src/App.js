@@ -96,7 +96,7 @@ function App() {
 
   return (
     <Router>
-      <Layout user={user}>
+      <Layout user={user} >
         <Routes>
           <Route path="/" element={user ? <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} /> : <Navigate replace to="/signin" />} />
           <Route path="/signin" element={!user ? <SignIn /> : <Navigate replace to="/" />} />
