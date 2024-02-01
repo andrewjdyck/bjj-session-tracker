@@ -10,6 +10,7 @@ import HomePage from './components/HomePage';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import SessionList from './components/SessionList';
 
 
 
@@ -41,7 +42,6 @@ function App() {
     let unsubscribeFirestore = () => {};
 
     if (user) {
-      // console.log("useEffect called with user:", user);
       unsubscribeFirestore = firestore
         .collection('sessions')
         .doc(user.uid)
@@ -102,36 +102,11 @@ function App() {
           <Route path="/signin" element={!user ? <SignIn /> : <Navigate replace to="/" />} />
           <Route path="/signup" element={!user ? <SignUp /> : <Navigate replace to="/" />} />
           <Route path="/profile" element={user ? <UserProfile /> : <Navigate replace to="/signin" />} />
+          <Route path="/sessions" element={user ? <SessionList sessions={sessions} /> : <Navigate replace to="/signin" />} />
           {/* Add other routes as needed */}
         </Routes>
       </Layout>
     </Router>
-
-    // <Layout user={user}>
-    // <div className="App">
-    //   {!user ? (
-    //     <div>
-    //       {authOption === 'signIn' ? (
-    //         <>
-    //           <SignIn />
-    //           <button onClick={() => setAuthOption('signUp')}>Need an account? Sign Up</button>
-    //         </>
-    //       ) : (
-    //         <>
-    //           <SignUp />
-    //           <button onClick={() => setAuthOption('signIn')}>Already have an account? Sign In</button>
-    //         </>
-    //       )}
-    //     </div>
-    //   ) : (
-    //     <>
-    //       <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} />
-    //       {/* <SessionForm onAddSession={addSession} /> */}
-    //       {/* <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} /> */}
-    //     </>
-    //   )}
-    // </div>
-    // </Layout>
   );
 }
 

@@ -12,10 +12,11 @@ function HomePage( { sessions, onAddSession, onDeleteSession, onEditSession } ) 
             <Container>
                 {/* First Row with Two Columns */}
                 <Row>
-                    <Col md={6}>
+                    {/* <Col md={6}>
                         <TotalTime sessions={sessions} />
-                    </Col>
-                    <Col md={6}>
+                    </Col> */}
+                    {/* <Col md={6}> */}
+                    <Col>
                         <h3>Log a training session</h3>
                         <SessionForm onAddSession={onAddSession} />
                     </Col>
@@ -24,8 +25,8 @@ function HomePage( { sessions, onAddSession, onDeleteSession, onEditSession } ) 
                 {/* Second Row for Session Listing */}
                 <Row>
                     <Col>
-                        <SessionList sessions={sessions} onDeleteSession={onDeleteSession} onEditSession={onEditSession} />
-                        {/* Session List here */}
+                        {/* <SessionList sessions={sessions} onDeleteSession={onDeleteSession} onEditSession={onEditSession} /> */}
+                        <TotalTime sessions={sessions} />
                     </Col>
                 </Row>
             </Container>

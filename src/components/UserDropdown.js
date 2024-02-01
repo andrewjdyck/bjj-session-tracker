@@ -20,8 +20,9 @@ function UserDropdown( {user} ) {
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
+        <Dropdown.Item as={Link} to="/">Log Training</Dropdown.Item>
+        <Dropdown.Item as={Link} to="/sessions">Sessions</Dropdown.Item>
         <Dropdown.Item as={Link} to="/profile">User Profile</Dropdown.Item>
-        {/* <Dropdown.Item href="#/settings">Settings</Dropdown.Item> */}
         <Dropdown.Item onClick={handleSignOut}>Sign Out</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>

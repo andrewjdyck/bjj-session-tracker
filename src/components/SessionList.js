@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table, Button, Form, InputGroup } from 'react-bootstrap';
 
 function SessionList({ sessions, onDeleteSession, onEditSession }) {
+  console.log(sessions);
   const [editingSessionId, setEditingSessionId] = useState(null);
   const [updatedSession, setUpdatedSession] = useState({});
 
@@ -30,6 +31,8 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
     setEditingSessionId(null);
   };
 
+  const sd = [null];
+
   if (!sessions || sessions.length === 0) {
     return <div>No sessions found</div>;
   }
@@ -48,6 +51,7 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
         </thead>
         <tbody>
           {sessions.map((session) => (
+            //  sd = session.sessionData,
             <tr key={session.id}>
               {editingSessionId === session.id ? (
                 <>
@@ -62,8 +66,8 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
                   <td>
                     <Form.Control
                       type="text"
-                      name="time"
-                      value={updatedSession.time}
+                      name="startTime"
+                      value={updatedSession.startTime}
                       onChange={handleInputChange}
                     />
                   </td>
@@ -83,7 +87,7 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
               ) : (
                 <>
                   <td>{session.date}</td>
-                  <td>{session.time}</td>
+                  <td>{session.startTime}</td>
                   <td>{session.sessionType}</td>
                   <td>
                     <Button variant="primary" onClick={() => handleEditClick(session, session.id)}>Edit</Button>
@@ -96,32 +100,6 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
         </tbody>
       </Table>
     </div>
-
-
-    // <div>
-    //   <h2>Session List</h2>
-    //   <ul>
-    //     {sessions.map((session, index) => (
-    //       <li key={index}>
-    //         {editingSessionId === session.id ? (
-    //           <>
-    //             <input name="date" value={updatedSession.date} onChange={handleInputChange} />
-    //             <input name="time" value={updatedSession.time} onChange={handleInputChange} />
-    //             <input name="sessionType" value={updatedSession.sessionType} onChange={handleInputChange} />
-    //             <button onClick={() => handleUpdateClick(session.id)}>Update</button>
-    //             <button onClick={handleEditCancelClick}>Cancel</button>
-    //           </>
-    //         ) : (
-    //           <>
-    //             Date: {session.date}, Time: {session.time}, Type: {session.sessionType}
-    //             <button onClick={() => handleEditClick(session, session.id)}>Edit</button>
-    //             <button onClick={() => handleDeleteClick(session.id)}>Delete</button>
-    //           </>
-    //         )}
-    //       </li>
-    //     ))}
-    //   </ul>
-    // </div>
   );
 };
 

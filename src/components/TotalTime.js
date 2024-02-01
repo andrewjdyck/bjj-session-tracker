@@ -2,6 +2,7 @@
 import React from 'react';
 
 function TotalTime({ sessions }) {
+  console.log(sessions);
   const totalDuration = sessions.reduce((acc, session) => acc + parseInt(session.duration, 10), 0);
 
   return (
