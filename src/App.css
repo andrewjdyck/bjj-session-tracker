@@ -6,8 +6,9 @@
 form {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 100%;
   margin: 20px auto;
+  align-items: center; /* Add this to center the form's children */
 }
 
 label {
@@ -29,4 +30,38 @@ li {
   background-color: #f0f0f0;
   padding: 10px;
   margin-bottom: 5px;
+}
+
+body {
+  background-image: url('https://source.unsplash.com/a-man-on-the-ground-in-a-black-and-white-photo-Z3fu-8gV66Q?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=50');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; /* Ensure the image doesn't tile */
+  color: white !important;
+  text-shadow: 2px 2px 4px #000000;
+  padding-bottom: 50px; /* Adjust based on the actual height of your footer */
+}
+
+html, body {
+  min-height: 100%;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: black;
+  color: white;
+  text-align: left;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1030; /* High z-index to ensure it stays on top of other content */
+  /* Optional shadow for depth */
+  /* box-shadow: 0 2px 4px rgba(0,0,0,.1); */
 }

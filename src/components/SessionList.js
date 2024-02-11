@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Button, Form, InputGroup } from 'react-bootstrap';
+import { Table, Button, Form } from 'react-bootstrap';
+import { firestore } from '../firebase';  // Import firestore from firebase.js
 
-function SessionList({ sessions, onDeleteSession, onEditSession }) {
-  console.log(sessions);
+// function SessionList({ sessions, onDeleteSession, onEditSession }) {
+function SessionList({ user, sessions }) {
   const [editingSessionId, setEditingSessionId] = useState(null);
   const [updatedSession, setUpdatedSession] = useState({});
 
@@ -31,7 +32,25 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
     setEditingSessionId(null);
   };
 
-  const sd = [null];
+  const onDeleteSession = async (sessionId) => {
+    if (user) {
+      try {
+        await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).delete();
+      } catch (error) {
+        console.error('Error deleting session:', error.message);
+      }
+    }
+  };
+  
+  const onEditSession = async (sessionId, updatedSession) => {
+    if (user) {
+      try {
+        await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).update(updatedSession);
+      } catch (error) {
+        console.error('Error editing session:', error.message);
+      }
+    }
+  };
 
   if (!sessions || sessions.length === 0) {
     return <div>No sessions found</div>;
@@ -45,6 +64,7 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
           <tr>
             <th>Date</th>
             <th>Time</th>
+            <th>Duration</th>
             <th>Type</th>
             <th>Actions</th>
           </tr>
@@ -74,6 +94,14 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
                   <td>
                     <Form.Control
                       type="text"
+                      name="duration"
+                      value={updatedSession.duration}
+                      onChange={handleInputChange}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="text"
                       name="sessionType"
                       value={updatedSession.sessionType}
                       onChange={handleInputChange}
@@ -88,6 +116,7 @@ function SessionList({ sessions, onDeleteSession, onEditSession }) {
                 <>
                   <td>{session.date}</td>
                   <td>{session.startTime}</td>
+                  <td>{session.duration}</td>
                   <td>{session.sessionType}</td>
                   <td>
                     <Button variant="primary" onClick={() => handleEditClick(session, session.id)}>Edit</Button>

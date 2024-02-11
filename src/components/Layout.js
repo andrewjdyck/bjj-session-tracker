@@ -1,13 +1,13 @@
 import React from 'react';
 import Header from './Header';
-import Footer from './Footer';
+// import Footer from './Footer';
 
-const Layout = ({user, children }) => {
+const Layout = ({user, sessions, children }) => {
   return (
     <>
-      <Header user={user} />
+      <Header user={user} sessions={sessions} />
       {children}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

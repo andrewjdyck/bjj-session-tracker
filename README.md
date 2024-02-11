@@ -4,8 +4,8 @@ This project is an experiment in building (and learning how to build) a React.js
 
 ## Upcoming features
 
+- Move session list to a model linked from main page
 - Limit session return to last 20 sessions on home page
-- Some aggregate stats on home page. (total mat hours)
 - Styling and layout
 - First release!
 - Pagination for sessions.

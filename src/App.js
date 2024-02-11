@@ -11,6 +11,8 @@ import HomePage from './components/HomePage';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SessionList from './components/SessionList';
+// import './Custom.scss';
+
 
 
 
@@ -18,7 +20,7 @@ import SessionList from './components/SessionList';
 function App() {
   const [user, setUser] = useState(null); // State to store user data
   const [sessions, setSessions] = useState([]);
-  const [authOption, setAuthOption] = useState('signIn'); // or 'signUp'
+  // const [authOption, setAuthOption] = useState('signIn'); // or 'signUp'
 
 
   // Set up a listener to update the user state when authentication status changes
@@ -74,35 +76,37 @@ function App() {
     }
   };
 
-  const deleteSession = async (sessionId) => {
-    if (user) {
-      try {
-        await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).delete();
-      } catch (error) {
-        console.error('Error deleting session:', error.message);
-      }
-    }
-  };
+  // const deleteSession = async (sessionId) => {
+  //   if (user) {
+  //     try {
+  //       await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).delete();
+  //     } catch (error) {
+  //       console.error('Error deleting session:', error.message);
+  //     }
+  //   }
+  // };
   
-  const editSession = async (sessionId, updatedSession) => {
-    if (user) {
-      try {
-        await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).update(updatedSession);
-      } catch (error) {
-        console.error('Error editing session:', error.message);
-      }
-    }
-  };
+  // const editSession = async (sessionId, updatedSession) => {
+  //   if (user) {
+  //     try {
+  //       await firestore.collection('sessions').doc(user.uid).collection('userSessions').doc(sessionId).update(updatedSession);
+  //     } catch (error) {
+  //       console.error('Error editing session:', error.message);
+  //     }
+  //   }
+  // };
 
   return (
     <Router>
-      <Layout user={user} >
+      <Layout user={user} sessions={sessions} >
         <Routes>
-          <Route path="/" element={user ? <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} /> : <Navigate replace to="/signin" />} />
+          <Route path="/" element={user ? <HomePage sessions={sessions} onAddSession={addSession} /> : <Navigate replace to="/signin" />} />
+          {/* <Route path="/" element={user ? <HomePage sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession} onEditSession={editSession} /> : <Navigate replace to="/signin" />} /> */}
           <Route path="/signin" element={!user ? <SignIn /> : <Navigate replace to="/" />} />
           <Route path="/signup" element={!user ? <SignUp /> : <Navigate replace to="/" />} />
           <Route path="/profile" element={user ? <UserProfile /> : <Navigate replace to="/signin" />} />
-          <Route path="/sessions" element={user ? <SessionList sessions={sessions} /> : <Navigate replace to="/signin" />} />
+          {/* <Route path="/sessions" element={user ? <SessionList sessions={sessions} onDeleteSession={deleteSession} onEditSession={editSession} /> : <Navigate replace to="/signin" />} /> */}
+          {/* <Route path="/sessions" element={user ? <SessionList sessions={sessions} user={user} /> : <Navigate replace to="/signin" />} /> */}
           {/* Add other routes as needed */}
         </Routes>
       </Layout>

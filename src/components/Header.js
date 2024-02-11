@@ -1,27 +1,21 @@
 // Header.js
 import React from 'react';
-// import { auth } from '../firebase';
+import { Container } from 'react-bootstrap';
 
-import NavigationBar from './NavigationBar';
+// import NavigationBar from './NavigationBar';
+import UserDropdown from './UserDropdown';
 
-function Header({ user }) {
-  // const handleSignOut = async () => {
-  //   try {
-  //     await auth.signOut();
-  //   } catch (error) {
-  //     console.error('Error signing out:', error);
-  //   }
-  // };
-
+function Header({ user, sessions }) {
   return (
-    <header>
-      {/* {user && (
-        <div>
-            <button onClick={handleSignOut}>Sign Out, {user.email}</button>
-        </div>
-        )} */}
-      <NavigationBar user={user} />
+    <header className="d-flex justify-content-end p-3">
+      <Container>
+        <UserDropdown user={user} />
+      </Container>
     </header>
+    // <header>
+    //   {/* <NavigationBar user={user} sessions={sessions} /> */}
+    //   <UserDropdown user={user} sessions={sessions} />
+    // </header>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Row, Col, Container } from 'react-bootstrap';
 
 function SessionForm ({ onAddSession }) {
   const [sessionData, setSessionData] = useState({
@@ -37,57 +37,72 @@ function SessionForm ({ onAddSession }) {
     console.log('new entry submitted.')
   };
 
-
   return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Group>
-        <Form.Label>Date</Form.Label>
-        <Form.Control
-          type="date"
-          name="date"
-          value={sessionData.date}
-          onChange={handleChange}
-        />
-      </Form.Group>
+    <Container fluid>
+      <Form onSubmit={handleSubmit}>
+       <Row className="g-1">
+        <Col xs={12} md={3}>
+          <Form.Group>
+            <Form.Label>Date</Form.Label>
+            <Form.Control
+              type="date"
+              name="date"
+              value={sessionData.date}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Col>
 
-      <Form.Group>
-        <Form.Label>Start Time</Form.Label>
-        <Form.Control
-          type="time"
-          name="startTime"
-          value={sessionData.startTime}
-          onChange={handleChange}
-        />
-      </Form.Group>
+        <Col xs={12} md={3}>
+          <Form.Group>
+            <Form.Label>Start Time</Form.Label>
+            <Form.Control
+              type="time"
+              name="startTime"
+              value={sessionData.startTime}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Col>
 
-      <Form.Group>
-        <Form.Label>Session Type</Form.Label>
-        <Form.Control
-          as="select"
-          name="sessionType"
-          value={sessionData.sessionType}
-          onChange={handleChange}
-        >
-          <option value="">Select...</option>
-          <option value="gi">Gi</option>
-          <option value="no-gi">No-Gi</option>
-          {/* Add other session types as needed */}
-        </Form.Control>
-      </Form.Group>
+        <Col xs={12} md={3}>
+          <Form.Group>
+            <Form.Label>Session Type</Form.Label>
+            <Form.Control
+              as="select"
+              name="sessionType"
+              value={sessionData.sessionType}
+              onChange={handleChange}
+            >
+              <option value="">Select...</option>
+              <option value="gi">Gi</option>
+              <option value="no-gi">No-Gi</option>
+              {/* Add other session types as needed */}
+            </Form.Control>
+          </Form.Group>
+        </Col>
 
-      <Form.Group>
-        <Form.Label>Duration (minutes)</Form.Label>
-        <Form.Control
-          type="number"
-          name="duration"
-          value={sessionData.duration}
-          onChange={handleChange}
-          min="0"
-        />
-      </Form.Group>
-
-      <Button type="submit">Add Session</Button>
+        <Col xs={12} md={3}>
+          <Form.Group>
+            <Form.Label>Duration (min)</Form.Label>
+            <Form.Control
+              type="number"
+              name="duration"
+              value={sessionData.duration}
+              onChange={handleChange}
+              min="0"
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+      <br />
+      <Row>
+        <Col xs={12} md={12}>
+          <Button type="submit" variant="secondary">Add Session</Button>
+        </Col>
+      </Row>
     </Form>
+    </Container>
   );
 };
 

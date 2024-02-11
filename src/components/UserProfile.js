@@ -9,7 +9,9 @@ function UserProfile() {
     name: '',
     email: '',
     beltRank: '',
-    bjjSchool: ''
+    bjjSchool: '',
+    firstName: '',
+    lastName: ''
   });
 
   useEffect(() => {
@@ -38,7 +40,7 @@ function UserProfile() {
 
   return (
     <div>
-      <h2>User Profile</h2>
+      {/* <h2>User Profile</h2> */}
       <Form onSubmit={handleSubmit}>
         <Form.Group>
           <Form.Label>Name</Form.Label>

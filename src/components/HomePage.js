@@ -1,36 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 
-import SessionList from './SessionList';
 import SessionForm from './SessionForm';
 import TotalTime from './TotalTime';
+import SessionListModal from './SessionListModal';
 
-function HomePage( { sessions, onAddSession, onDeleteSession, onEditSession } ) {
+function HomePage( { sessions, onAddSession } ) {
+
+    const [showSessionModal, setShowSessionModal] = useState(false);
+
+    const handleShowSessionModal = () => setShowSessionModal(true);
+    const handleCloseSessionModal = () => setShowSessionModal(false);
 
     return (
-        <div>
-            <Container>
-                {/* First Row with Two Columns */}
-                <Row>
-                    {/* <Col md={6}>
-                        <TotalTime sessions={sessions} />
-                    </Col> */}
-                    {/* <Col md={6}> */}
-                    <Col>
-                        <h3>Log a training session</h3>
-                        <SessionForm onAddSession={onAddSession} />
-                    </Col>
-                </Row>
-
-                {/* Second Row for Session Listing */}
-                <Row>
-                    <Col>
-                        {/* <SessionList sessions={sessions} onDeleteSession={onDeleteSession} onEditSession={onEditSession} /> */}
-                        <TotalTime sessions={sessions} />
-                    </Col>
-                </Row>
-            </Container>
-        </div>
+        <Container>
+            <Row>
+                <Col>
+                    <SessionForm onAddSession={onAddSession} />
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <a onClick={handleShowSessionModal}>* View / Edit Sessions</a>
+                    <SessionListModal show={showSessionModal} handleClose={handleCloseSessionModal} sessions={sessions} />
+                </Col>
+            </Row>
+            <TotalTime sessions={sessions} />
+        </Container>
     );
 }
 
