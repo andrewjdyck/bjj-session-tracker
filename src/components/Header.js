@@ -9,7 +9,7 @@ function Header({ user, sessions }) {
   return (
     <header className="d-flex justify-content-end p-3">
       <Container>
-        <UserDropdown user={user} />
+        <UserDropdown user={user} className="ml-auto" />
       </Container>
     </header>
     // <header>

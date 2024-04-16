@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { auth, firestore } from '../firebase';
 import { Form, Button, Modal } from 'react-bootstrap';
-import SessionList from './SessionList';
 
 // import { Container, Row, Col } from 'react-bootstrap';
 
-function UserProfileModal( { show, handleClose, sessions, user }) {
+function UserProfileModal( { show, handleClose, user }) {
   // const [user, setUser] = useState(null); // State to store user data
   const [profile, setProfile] = useState({
     name: '',
@@ -17,9 +16,11 @@ function UserProfileModal( { show, handleClose, sessions, user }) {
   });
 
   useEffect(() => {
-    if (auth.currentUser) {
+    // if (auth.currentUser) {
+    if (user) {
       const fetchUserProfile = async () => {
-        const userRef = firestore.collection('users').doc(auth.currentUser.uid);
+        // const userRef = firestore.collection('users').doc(auth.currentUser.uid);
+        const userRef = firestore.collection('users').doc(user.uid);
         const doc = await userRef.get();
         if (doc.exists) {
           setProfile(doc.data());
@@ -32,7 +33,7 @@ function UserProfileModal( { show, handleClose, sessions, user }) {
       // Optionally handle the case when no user is signed in
       console.log("No user is signed in.");
     }
-  }, []);
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,7 +93,6 @@ function UserProfileModal( { show, handleClose, sessions, user }) {
           {/* Add fields for email, beltRank, and bjjSchool similarly */}
           <Button type="submit">Update Profile</Button>
         </Form>
-        <SessionList user={auth.currentUser} sessions={sessions} />
       </Modal.Body>
     </Modal>
   );

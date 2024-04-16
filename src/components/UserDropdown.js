@@ -21,14 +21,14 @@ function UserDropdown( { user, sessions } ) {
   const handleCloseProfileModal = () => setShowProfileModal(false);
 
   return (
-    <Dropdown>
-      <UserProfileModal show={showProfileModal} handleClose={handleCloseProfileModal} user={user} sessions={sessions} />
-      <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+    <Dropdown align="end" className="ml-auto">
+      <UserProfileModal show={showProfileModal} handleClose={handleCloseProfileModal} user={user} />
+      <Dropdown.Toggle variant="secondary" id="dropdown-basic" className="ml-auto">
         {/* {user.email} */}
-        {user ? user.email : 'Loading...'}
+        {user ? user.email : 'Guest'}
       </Dropdown.Toggle>
 
-      <Dropdown.Menu>
+      <Dropdown.Menu className="ml-auto">
         {/* <Button onClick={handleShowProfileModal}>Edit Profile</Button> */}
         {/* <Dropdown.Item as={Link} to="/">Log Training</Dropdown.Item> */}
         {/* <Dropdown.Item as={Link} to="/sessions">Sessions</Dropdown.Item> */}

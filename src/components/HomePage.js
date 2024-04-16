@@ -19,9 +19,9 @@ function HomePage( { sessions, onAddSession } ) {
                     <SessionForm onAddSession={onAddSession} />
                 </Col>
             </Row>
-            <Row>
-                <Col>
-                    <a onClick={handleShowSessionModal}>* View / Edit Sessions</a>
+            <Row md={9} className="justify-content-md-center">
+                <Col xs={9} md={9} align='right'>
+                    <a onClick={handleShowSessionModal}>* View / Edit Sessions *</a>
                     <SessionListModal show={showSessionModal} handleClose={handleCloseSessionModal} sessions={sessions} />
                 </Col>
             </Row>
