@@ -1,27 +1,62 @@
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
+import admin from "firebase-admin";
+import fs from "fs";
 
-// Your Firebase config
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-};
+// Load service account credentials
+const serviceAccount = JSON.parse(fs.readFileSync("./scripts/firebase-service-account.json", "utf8"));
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-async function deleteCollection(collectionPath: string) {
-  const querySnapshot = await getDocs(collection(db, collectionPath));
-  querySnapshot.forEach(async (document) => {
-    await deleteDoc(doc(db, collectionPath, document.id));
-    console.log(`Deleted: ${collectionPath}/${document.id}`);
+// Initialize Firebase Admin
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
-async function wipeDatabase() {
-  await deleteCollection("users");
-  await deleteCollection("posts");
+const db = admin.firestore();
+
+// Function to delete all documents in a collection
+async function deleteCollection(collectionPath: string) {
+  const collectionRef = db.collection(collectionPath);
+  const snapshot = await collectionRef.get();
+  
+  // Create an array of promises for all deletions
+  const deletePromises = snapshot.docs.map(async (doc) => {
+    await doc.ref.delete();
+    console.log(`Deleted: ${collectionPath}/${doc.id}`);
+  });
+  
+  // Wait for all deletions to complete
+  await Promise.all(deletePromises);
 }
 
-wipeDatabase().then(() => console.log("Database wiped."));
+async function deleteAllUsers() {
+  // Get all users (Firebase limits to 1000 at a time)
+  const listUsersResult = await admin.auth().listUsers();
+  
+  // Create an array of promises for all user deletions
+  const deleteUserPromises = listUsersResult.users.map(async (userRecord) => {
+    await admin.auth().deleteUser(userRecord.uid);
+    console.log(`Deleted user: ${userRecord.uid}`);
+  });
+  
+  // Wait for all deletions to complete
+  await Promise.all(deleteUserPromises);
+  console.log("All users deleted from Authentication!");
+}
+
+async function wipeDatabase() {
+  // First delete all users from Authentication
+  await deleteAllUsers();
+  
+  // Then delete all collections from Firestore
+  await deleteCollection("users");
+  await deleteCollection("posts");
+  await deleteCollection("profiles");
+  console.log("Firestore wiped!");
+}
+
+wipeDatabase()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Error wiping Firestore:", error);
+    process.exit(1);
+  });
