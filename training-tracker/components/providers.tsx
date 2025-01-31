@@ -18,12 +18,13 @@ const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 
-type AuthContextType = {
+interface AuthContextType {
   user: User | null
+  signOut: () => Promise<void>
   loading: boolean
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true })
+const AuthContext = createContext<AuthContextType>({ user: null, signOut: async () => {}, loading: true })
 
 export const useAuth = () => useContext(AuthContext)
 
@@ -41,7 +42,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, signOut: () => auth.signOut(), loading }}>
       {children}
     </AuthContext.Provider>
   )

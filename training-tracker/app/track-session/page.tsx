@@ -56,7 +56,7 @@ export default function TrackSession() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Track Session</h2>
+        <h2 className="text-2xl font-bold mb-4">Track Jiu Jitsu Training Session</h2>
         <div className="mb-4">
           <Input
             type="date"

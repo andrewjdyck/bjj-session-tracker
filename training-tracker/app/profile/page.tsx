@@ -7,6 +7,7 @@ import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SignOutButton } from '@/components/SignOutButton'
 
 type ProfileData = {
   beltRank: string
@@ -118,7 +119,10 @@ export default function Profile() {
             placeholder="Training duration (e.g., 2 years)"
           />
         </div>
-        <Button type="submit" className="w-full">Update Profile</Button>
+        <div className="flex gap-4">
+          <SignOutButton />
+          <Button type="submit" className="flex-1">Update Profile</Button>
+        </div>
       </form>
     </div>
   )
