@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed-db": "ts-node scripts/seedFirestore.ts",
+    "wipe-db": "ts-node scripts/wipeFirestore.ts"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.1.4",
