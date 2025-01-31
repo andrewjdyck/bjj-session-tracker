@@ -4,7 +4,7 @@ import { useAuth } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { collection, getDocs, collectionGroup } from 'firebase/firestore'
+import { getDocs, collectionGroup } from 'firebase/firestore'
 import { db } from '@/components/providers'
 
 export default function Home() {

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { PlusIcon, MinusIcon } from '@radix-ui/react-icons'
 
 type FAQItem = {
@@ -62,7 +61,7 @@ export default function About() {
         <p className="text-lg text-gray-600">
           BJJ Tracker is a web application designed to help Brazilian Jiu-Jitsu practitioners track their training journey. 
           Built by Andy Dyck, this app allows users to log their training sessions, track progress, and maintain a detailed 
-          record of their BJJ development. Whether you're a white belt just starting out or a seasoned black belt, 
+          record of their BJJ development. Whether you are a white belt just starting out or a seasoned black belt, 
           BJJ Tracker helps you maintain a comprehensive log of your training history.
         </p>
       </div>
