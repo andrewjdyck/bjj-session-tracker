@@ -29,10 +29,18 @@ function NavButtons() {
   )
 }
 
-// export const metadata = {
-//   title: 'BJJ Tracker',
-//   description: 'Track your Brazilian Jiu-Jitsu training sessions',
-// }
+function Footer() {
+  return (
+    <footer className="bg-gray-800 text-white p-4">
+      <div className="container mx-auto flex justify-end">
+        <Button asChild variant="ghost" className="text-white hover:text-gray-300">
+          <Link href="/about">About</Link>
+        </Button>
+      </div>
+    </footer>
+  )
+}
+
 
 export default function RootLayout({
   children,
@@ -49,9 +57,10 @@ export default function RootLayout({
               <NavButtons />
             </div>
           </nav>
-          <main className="container mx-auto mt-8">
+          <main className="container mx-auto mt-8 min-h-[calc(100vh-160px)]">
             {children}
           </main>
+          <Footer />
         </Providers>
       </body>
     </html>
