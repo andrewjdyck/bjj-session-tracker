@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { collection, query, where, getDocs } from 'firebase/firestore'
-import { useAuth, db } from '../../components/providers'
+import { useAuth, db } from '@/components/providers'
 
 export default function Dashboard() {
   const { user, loading } = useAuth()
