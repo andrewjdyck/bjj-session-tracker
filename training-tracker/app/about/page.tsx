@@ -15,15 +15,15 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Can I edit or delete a training session?",
-    answer: "Yes! From your dashboard, you can view all your training sessions. Each session has options to edit or delete the entry if you need to make changes."
+    answer: "Not yet. This feature is coming soon."
   },
   {
-    question: "How is my belt rank displayed?",
-    answer: "Your belt rank is set in your profile settings. Once set, it will be displayed on your dashboard and associated with your training sessions."
+    question: "Can I import or export my training data?",
+    answer: "Not yet, but this is a key feature to enable learning from the community."
   },
   {
     question: "Is my training data private?",
-    answer: "Yes, your individual training data is private and can only be seen by you. The only public information is the aggregate total training time across all users shown on the landing page."
+    answer: "Yes, your individual training data is private and can only be seen by you. However, your training data is aggregated across all users to analyze the training habits of the community that are most likely to leading to success in the sport and provide coaching advice (future feature)."
   }
 ]
 
@@ -59,10 +59,14 @@ export default function About() {
       
       <div className="prose mb-12">
         <p className="text-lg text-gray-600">
-          BJJ Tracker is a web application designed to help Brazilian Jiu-Jitsu practitioners track their training journey. 
-          Built by Andy Dyck, this app allows users to log their training sessions, track progress, and maintain a detailed 
-          record of their BJJ development. Whether you are a white belt just starting out or a seasoned black belt, 
-          BJJ Tracker helps you maintain a comprehensive log of your training history.
+          BJJ Tracker is a web application designed to help Jiu-Jitsu practitioners track their training journey. The goal of the project is to 
+          collect training data from the community from people with many different skill levels, training styles, and goals, which can then be 
+          analyzed to generate coaching advice tailored to each individual, prevent pre-mature quitting, and grow the sport.
+        </p>
+        <br />
+        <p className="text-lg text-gray-600">
+          This app is built by <a href="https://www.andrewdyck.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline font-bold">Andy Dyck</a>. 
+          If you find this app useful, please consider supporting the project by <a href="https://www.buymeacoffee.com/andrewjdyck" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline font-bold">buying me a coffee</a>.
         </p>
       </div>
 
