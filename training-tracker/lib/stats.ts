@@ -1,5 +1,5 @@
 import { db } from '@/components/providers'
-import { doc, getDoc, setDoc, runTransaction } from 'firebase/firestore'
+import { doc, runTransaction } from 'firebase/firestore'
 
 export async function updateGlobalStats(minutesChange: number) {
   try {
