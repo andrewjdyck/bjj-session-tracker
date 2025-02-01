@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+// import { useRouter } from 'next/navigation'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,7 @@ type ProfileData = {
 
 export default function Profile() {
   const { user, loading } = useAuth()
-  const router = useRouter()
+  // const router = useRouter() // this is never used. Remove it.
   const [profileData, setProfileData] = useState<ProfileData>({
     beltRank: '',
     rankDate: '',
@@ -28,15 +28,7 @@ export default function Profile() {
     trainingDuration: '',
   })
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    } else if (user) {
-      fetchProfileData()
-    }
-  }, [user, loading, router])
-
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     if (user) {
       const docRef = doc(db, 'users', user.uid)
       const docSnap = await getDoc(docRef)
@@ -44,7 +36,11 @@ export default function Profile() {
         setProfileData(docSnap.data() as ProfileData)
       }
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    fetchProfileData()
+  }, [fetchProfileData])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target

@@ -11,27 +11,6 @@ import { MenuIcon } from 'lucide-react'
 
 const inter = Inter({ subsets: ['latin'] })
 
-// Create a client component for the navigation buttons
-function NavButtons() {
-  const { user } = useAuth()
-
-  if (!user) return null
-
-  return (
-    <div className="md:space-x-4 hidden md:flex">
-      <Button asChild variant="ghost">
-        <Link href="/dashboard">Dashboard</Link>
-      </Button>
-      <Button asChild variant="ghost">
-        <Link href="/track-session">Track Session</Link>
-      </Button>
-      <Button asChild variant="ghost">
-        <Link href="/profile">Profile</Link>
-      </Button>
-    </div>
-  )
-}
-
 // Add mobile menu
 function MobileNav() {
   const { user } = useAuth()
