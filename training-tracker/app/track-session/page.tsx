@@ -7,7 +7,7 @@ import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { updateGlobalStats } from '../../lib/stats'
+import { updateGlobalStats } from '@/lib/stats'
 
 type SessionData = {
   date: string
