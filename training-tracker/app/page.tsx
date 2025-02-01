@@ -4,7 +4,7 @@ import { useAuth } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { getDocs, collectionGroup } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/components/providers'
 
 export default function Home() {
@@ -16,12 +16,15 @@ export default function Home() {
     async function fetchTotalMinutes() {
       try {
         setLoading(true)
-        const sessionsSnapshot = await getDocs(collectionGroup(db, 'sessions'))
-        const total = sessionsSnapshot.docs.reduce((sum, doc) => {
-          const data = doc.data()
-          return sum + (parseInt(data.duration) || 0)
-        }, 0)
-        setTotalMinutes(total)
+        const statsDoc = await getDoc(doc(db, 'stats', 'global'))
+        console.log("Stats doc exists:", statsDoc.exists());
+        if (statsDoc.exists()) {
+          const data = statsDoc.data();
+          console.log("Stats data:", data);
+          setTotalMinutes(data.totalTrainingMinutes || 0)
+        } else {
+          console.log("No stats document found");
+        }
       } catch (error) {
         console.error('Error fetching total minutes:', error)
       } finally {
@@ -42,7 +45,7 @@ export default function Home() {
           <span>Loading community stats...</span>
         ) : (
           <>
-            <span className="font-bold">{totalMinutes.toLocaleString()}</span> total minutes trained by our community
+            <span className="font-bold">{totalMinutes.toLocaleString()}</span> training minutes logged by our community
           </>
         )}
       </div>

@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore'
 import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { updateGlobalStats } from '@/lib/stats'
 
 type SessionData = {
   date: string
@@ -36,20 +37,23 @@ export default function TrackSession() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      await addDoc(collection(db, 'users', user.uid, 'sessions'), {
-        ...sessionData,
-        timestamp: new Date(),
-      })
-      alert('Session logged successfully')
-      setSessionData({
-        date: new Date().toISOString().split('T')[0],
-        duration: 60,
-        notes: '',
-      })
-    } catch (error) {
-      console.error('Error adding document: ', error)
-      alert('Failed to log session. Please try again.')
+    if (user) {
+      try {
+        await addDoc(collection(db, 'users', user.uid, 'sessions'), {
+          ...sessionData,
+          timestamp: new Date(),
+        })
+        await updateGlobalStats(parseInt(sessionData.duration))
+        alert('Session logged successfully')
+        setSessionData({
+          date: new Date().toISOString().split('T')[0],
+          duration: 60,
+          notes: '',
+        })
+      } catch (error) {
+        console.error('Error adding document: ', error)
+        alert('Failed to log session. Please try again.')
+      }
     }
   }
 
