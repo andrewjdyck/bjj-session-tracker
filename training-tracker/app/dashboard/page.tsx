@@ -80,6 +80,11 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          {/* ... table content ... */}
+        </table>
+      </div>
     </div>
   )
 }
