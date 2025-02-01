@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore'
+import { addDoc, collection } from 'firebase/firestore'
 import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { updateGlobalStats } from '@/lib/stats'
+import { updateGlobalStats } from '../../lib/stats'
 
 type SessionData = {
   date: string
@@ -43,7 +43,7 @@ export default function TrackSession() {
           ...sessionData,
           timestamp: new Date(),
         })
-        await updateGlobalStats(parseInt(sessionData.duration))
+        await updateGlobalStats(sessionData.duration)
         alert('Session logged successfully')
         setSessionData({
           date: new Date().toISOString().split('T')[0],
