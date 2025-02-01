@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { useAuth, db } from '@/components/providers'
@@ -11,15 +11,7 @@ export default function Dashboard() {
   const [monthlyDuration, setMonthlyDuration] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    } else if (user) {
-      fetchSessionStats()
-    }
-  }, [user, loading, router])
-
-  const fetchSessionStats = async () => {
+  const fetchSessionStats = useCallback(async () => {
     if (user) {
       const now = new Date()
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -57,7 +49,15 @@ export default function Dashboard() {
       })
       setTotalDuration(allTimeTotal)
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    } else if (user) {
+      fetchSessionStats()
+    }
+  }, [user, loading, router, fetchSessionStats])
 
   if (loading) return <div>Loading...</div>
 
@@ -79,6 +79,11 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          {/* ... table content ... */}
+        </table>
       </div>
     </div>
   )
