@@ -1,6 +1,6 @@
 import { DashboardHeader } from "@/components/dashboard/header"
 import { DashboardStats } from "@/components/dashboard/stats"
-import { TrainingHistory } from "@/components/dashboard/training-history"
+import { TrainingHistory } from "@/components/training-history"
 import { CoachingTips } from "@/components/dashboard/coaching-tips"
 
 export default function DashboardPage() {
