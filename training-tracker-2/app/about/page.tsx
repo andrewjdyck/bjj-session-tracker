@@ -1,10 +1,10 @@
-import { DashboardHeader } from "@/components/dashboard-header"
+// import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader />
+      {/* <DashboardHeader /> */}
       <main className="container mx-auto p-4 space-y-6">
         <Card>
           <CardHeader>

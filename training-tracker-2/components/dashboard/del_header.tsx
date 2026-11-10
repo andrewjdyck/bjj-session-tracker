@@ -4,6 +4,7 @@ import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
+import { SignOutButton } from "@/components/SignOutButton"
 
 export function DashboardHeader() {
   return (

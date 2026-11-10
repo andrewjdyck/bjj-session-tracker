@@ -3,11 +3,12 @@
 import { Bar } from "react-chartjs-2"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
+import { useEffect, useState } from "react"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export function TrainingHistory() {
-  const data = {
+  const [data, setData] = useState({
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     datasets: [
       {
@@ -16,7 +17,7 @@ export function TrainingHistory() {
         backgroundColor: "rgb(124, 58, 237)",
       },
     ],
-  }
+  })
 
   const options = {
     responsive: true,
@@ -36,6 +37,13 @@ export function TrainingHistory() {
       },
     },
   }
+
+  // Use useEffect to set data if needed
+  useEffect(() => {
+    // If you need to fetch or modify data, do it here
+    // For example, you could fetch data from an API and set it
+    // setData(fetchedData);
+  }, [])
 
   return (
     <Card>

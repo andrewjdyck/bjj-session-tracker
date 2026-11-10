@@ -6,13 +6,13 @@ import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
+import { useAuth } from '@/components/providers'
 
 export function DashboardHeader() {
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
   const menuItems = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/profile", label: "Profile" },
     { href: "/about", label: "About" },
   ]
 
@@ -39,6 +39,24 @@ export function DashboardHeader() {
                       {item.label}
                     </Link>
                   ))}
+                  {user && (
+                    <>
+                      <Link
+                        href="/dashboard"
+                        className="text-lg font-semibold"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="text-lg font-semibold"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                    </>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
@@ -53,6 +71,16 @@ export function DashboardHeader() {
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
+            {user && (
+              <>
+                <Button key="/dashboard" variant="ghost" asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <Button key="/profile" variant="ghost" asChild>
+                  <Link href="/profile">Profile</Link>
+                </Button>
+              </>
+            )}
           </nav>          
         </div>
       </div>

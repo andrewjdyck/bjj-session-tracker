@@ -2,9 +2,19 @@
 
 import { useTheme } from "next-themes"
 import { Sun, Moon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export function ModeToggle() {
   const { setTheme, theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // This effect runs only on the client side
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Prevents hydration mismatch by rendering nothing until mounted
+  if (!mounted) return null;
 
   return (
     <button

@@ -1,37 +1,91 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+
+import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { useAuth, db } from '@/components/providers'
+
+import { SignOutButton } from '@/components/SignOutButton'
+
+type ProfileData = {
+  beltRank: string
+  rankDate: string
+  location: string
+  school: string
+  trainingDuration: string
+  stripes?: string; // Optional if not always present
+  trainingStyle?: string; // Optional if not always present
+  name?: string; // Add name property
+  email?: string; // Add email property
+}
+
 export function UserProfile() {
+  const { user, loading } = useAuth()
+
   const [isEditing, setIsEditing] = useState(false)
 
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    belt: "Blue",
-    stripes: "2",
-    location: "New York, NY",
-    trainingStyle: "Gi and No-Gi",
+  const [profileData, setProfileData] = useState<ProfileData>({
+    beltRank: '',
+    rankDate: '',
+    location: '',
+    school: '',
+    trainingDuration: '',
+    stripes: '',
+    trainingStyle: '',
+    // name: user?.displayName || '',
+    // email: user?.email || '',
   })
 
+  const fetchProfileData = useCallback(async () => {
+    if (user) {
+      const docRef = doc(db, 'users', user.uid)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const data = docSnap.data() as ProfileData;
+        setProfileData(data);
+      } else {
+        console.log("No user profile found in Firestore.");
+      }
+    }
+  }, [user])
+
+  useEffect(() => {
+    fetchProfileData()
+  }, [fetchProfileData])
+
+  // Add this useEffect to log profileData whenever it changes
+  // useEffect(() => {
+  //   console.log('Updated profile data1:', profileData);
+  // }, [profileData])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value })
+    setProfileData({ ...profileData, [e.target.name]: e.target.value })
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setProfile({ ...profile, [name]: value })
+    setProfileData({ ...profileData, [name]: value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsEditing(false)
-    // Here you would typically send the updated profile to your backend
-    console.log("Updated profile:", profile)
+    
+    // Update Firestore with the new profile data
+    if (user) {
+      const docRef = doc(db, 'users', user.uid)
+      try {
+        await setDoc(docRef, profileData, { merge: true }) // Use merge to update only the fields that have changed
+        console.log("Profile updated successfully")
+      } catch (error) {
+        console.error("Error updating profile:", error)
+      }
+    }
   }
 
   return (
@@ -43,7 +97,7 @@ export function UserProfile() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" name="name" value={profile.name} onChange={handleInputChange} disabled={!isEditing} />
+            <Input id="name" name="name" value={profileData.name} onChange={handleInputChange} disabled={!isEditing} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
@@ -51,17 +105,17 @@ export function UserProfile() {
               id="email"
               name="email"
               type="email"
-              value={profile.email}
+              value={profileData.email}
               onChange={handleInputChange}
               disabled={!isEditing}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="belt">Belt</Label>
+            <Label htmlFor="beltRank">Belt</Label>
             <Select
-              name="belt"
-              value={profile.belt}
-              onValueChange={(value) => handleSelectChange("belt", value)}
+              name="beltRank"
+              value={profileData.beltRank}
+              onValueChange={(value) => handleSelectChange("beltRank", value)}
               disabled={!isEditing}
             >
               <SelectTrigger>
@@ -84,7 +138,7 @@ export function UserProfile() {
               type="number"
               min="0"
               max="4"
-              value={profile.stripes}
+              value={profileData.stripes}
               onChange={handleInputChange}
               disabled={!isEditing}
             />
@@ -94,7 +148,7 @@ export function UserProfile() {
             <Input
               id="location"
               name="location"
-              value={profile.location}
+              value={profileData.location}
               onChange={handleInputChange}
               disabled={!isEditing}
             />
@@ -104,7 +158,7 @@ export function UserProfile() {
             <Input
               id="trainingStyle"
               name="trainingStyle"
-              value={profile.trainingStyle}
+              value={profileData.trainingStyle}
               onChange={handleInputChange}
               disabled={!isEditing}
             />
@@ -116,12 +170,17 @@ export function UserProfile() {
                 Cancel
               </Button>
             </div>
-          ) : (
-            <Button type="button" onClick={() => setIsEditing(true)}>
-              Edit Profile
-            </Button>
-          )}
+          ) : null}
         </form>
+        <div className="flex justify-end space-x-2">
+          <Button type="button" onClick={() => {
+            console.log("Edit Profile clicked"); // Log to check if the button works
+            setIsEditing(true);
+          }}>
+            Edit Profile
+          </Button>
+          <SignOutButton />
+        </div>
       </CardContent>
     </Card>
   )
