@@ -59,3 +59,10 @@ await trackUserEvent(user.uid, 'session_created', {
 await trackUserEvent(user.uid, 'profile_updated', {
   beltRank: profileData.beltRank
 })
+## Archived UI experiment
+
+The branch `archive/ui-v2-v0-export` holds an earlier experiment (Feb 2025): a fresh v0 export
+of the UI with Firebase login/signup re-added, built in a separate folder so the working app
+wasn't disturbed. It was never merged. It has no tests, seed scripts or analytics, but I
+preferred its look. If I refactor the UI, port pieces from that branch (landing page, theme
+provider, mode toggle) instead of maintaining two codebases.
