@@ -21,26 +21,12 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Community total shown on the landing page.
+    // LEGACY: the old browser-maintained community total. The app now computes
+    // the total on the server (/api/community-stats), so nothing writes this
+    // any more. Kept read-only so browsers still running the old code don't
+    // error; the rule and the doc can be deleted later.
     match /stats/global {
       allow read: if true;
-
-      // TEMPORARY: the browser updates this total after logging a session
-      // (lib/stats.ts). Remove client writes once the total is calculated on
-      // the server (tasks.md section 2). Until then, limit tampering: only the
-      // two known fields, a non-negative number, and at most one day's worth of
-      // minutes per write.
-      allow create: if signedIn()
-        && request.resource.data.keys().hasOnly(['totalTrainingMinutes', 'lastUpdated'])
-        && request.resource.data.totalTrainingMinutes is number
-        && request.resource.data.totalTrainingMinutes >= 0
-        && request.resource.data.totalTrainingMinutes <= 1440;
-      allow update: if signedIn()
-        && request.resource.data.keys().hasOnly(['totalTrainingMinutes', 'lastUpdated'])
-        && request.resource.data.totalTrainingMinutes is number
-        && request.resource.data.totalTrainingMinutes >= 0
-        && request.resource.data.totalTrainingMinutes - resource.data.totalTrainingMinutes <= 1440
-        && request.resource.data.totalTrainingMinutes - resource.data.totalTrainingMinutes >= -1440;
     }
 
     // Each user's profile and everything under it (sessions, events) is

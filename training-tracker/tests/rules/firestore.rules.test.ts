@@ -122,8 +122,9 @@ describe("another user's data", () => {
   })
 })
 
-describe('the community total (temporary client writes)', () => {
-  // Mirrors lib/stats.ts updateGlobalStats.
+describe('the legacy stats/global total (read-only)', () => {
+  // Mirrors the old browser code (lib/stats.ts updateGlobalStats, now removed),
+  // which may still run in browsers that loaded the previous version.
   const addMinutes = (db: ReturnType<typeof as>, minutes: number) =>
     runTransaction(db, async (tx) => {
       const ref = doc(db, 'stats/global')
@@ -132,23 +133,19 @@ describe('the community total (temporary client writes)', () => {
       tx.set(ref, { totalTrainingMinutes: Number(current) + minutes, lastUpdated: new Date() }, { merge: true })
     })
 
-  test('a signed-in user can add a normal session', async () => {
-    await assertSucceeds(addMinutes(as(ALICE), 60))
+  test('can still be read by anyone (old browsers)', async () => {
+    await assertSucceeds(getDoc(doc(anon(), 'stats/global')))
+    await assertSucceeds(getDoc(doc(as(ALICE), 'stats/global')))
   })
-  test('the total can be created if missing', async () => {
+  test('cannot be updated by a signed-in user, even by a normal session', async () => {
+    await assertFails(addMinutes(as(ALICE), 60))
+  })
+  test('cannot be created if missing', async () => {
     await env.withSecurityRulesDisabled((ctx) => deleteDoc(doc(ctx.firestore(), 'stats/global')))
-    await assertSucceeds(addMinutes(as(ALICE), 60))
+    await assertFails(addMinutes(as(ALICE), 60))
   })
-  test('cannot jump by more than a day of minutes', async () => {
-    await assertFails(addMinutes(as(ALICE), 100000))
-  })
-  test('cannot go negative', async () => {
-    await assertFails(setDoc(doc(as(ALICE), 'stats/global'), { totalTrainingMinutes: -1 }, { merge: true }))
-  })
-  test('cannot be set to a non-number or given extra fields', async () => {
-    const db = as(ALICE)
-    await assertFails(setDoc(doc(db, 'stats/global'), { totalTrainingMinutes: '1000' }, { merge: true }))
-    await assertFails(setDoc(doc(db, 'stats/global'), { hacked: true }, { merge: true }))
+  test('cannot be overwritten', async () => {
+    await assertFails(setDoc(doc(as(ALICE), 'stats/global'), { totalTrainingMinutes: 1 }))
   })
   test('cannot be deleted', async () => {
     await assertFails(deleteDoc(doc(as(ALICE), 'stats/global')))
