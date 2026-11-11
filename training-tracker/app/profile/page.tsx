@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SignOutButton } from '@/components/SignOutButton'
+import { FormMessage, FormMessageValue } from '@/components/FormMessage'
 
 type ProfileData = {
   beltRank: string
@@ -31,12 +32,17 @@ function toProfileData(data: Record<string, unknown>): ProfileData {
   for (const key of Object.keys(EMPTY_PROFILE) as (keyof ProfileData)[]) {
     if (typeof data[key] === 'string') result[key] = data[key] as string
   }
+  // Belt values are lowercase (matching the SelectItem values below). Older
+  // data from the archived v2 UI used "White", "Blue", ...
+  result.beltRank = result.beltRank.trim().toLowerCase()
   return result
 }
 
 export default function Profile() {
   const { user, loading } = useAuth()
   const [profileData, setProfileData] = useState<ProfileData>(EMPTY_PROFILE)
+  const [message, setMessage] = useState<FormMessageValue>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -54,18 +60,27 @@ export default function Profile() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setProfileData((prev) => ({ ...prev, [name]: value }))
+    setMessage(null)
   }
 
   const handleSelectChange = (value: string) => {
     setProfileData((prev) => ({ ...prev, beltRank: value }))
+    setMessage(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (user) {
+    if (!user) return
+    setSaving(true)
+    try {
       // merge so fields this form doesn't edit (name, email, stripes, ...) are kept
       await setDoc(doc(db, 'users', user.uid), profileData, { merge: true })
-      alert('Profile updated successfully')
+      setMessage({ type: 'success', text: 'Profile updated.' })
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      setMessage({ type: 'error', text: 'Failed to save your profile. Please try again.' })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -75,6 +90,7 @@ export default function Profile() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4">Profile</h2>
+        <FormMessage message={message} />
         <div className="mb-4">
           <Select onValueChange={handleSelectChange} value={profileData.beltRank}>
             <SelectTrigger>
@@ -127,7 +143,9 @@ export default function Profile() {
         </div>
         <div className="flex gap-4">
           <SignOutButton />
-          <Button type="submit" className="flex-1">Update Profile</Button>
+          <Button type="submit" className="flex-1" disabled={saving}>
+            {saving ? 'Saving…' : 'Update Profile'}
+          </Button>
         </div>
       </form>
     </div>

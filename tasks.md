@@ -70,13 +70,13 @@ Next steps after the November 2026 codebase review, in rough priority order.
 ## 3. Bugs and rough edges
 
 - [x] Profile: a user document missing a field (e.g. `rankDate`) caused the "controlled to uncontrolled input" warning, and saving overwrote the whole user document. Fixed: missing fields now default to `''`, and saving uses `merge: true`.
-- [ ] Profile: the belt rank dropdown shows blank even though `beltRank` is set. Firestore has capitalised values (`"White"`, `"Brown"`), but the `SelectItem` values are lowercase (`white`, `brown`), so nothing matches. Decide on one canonical form (ties into the data model in task 5) and normalise when reading, or migrate the existing docs. `stripes` is also stored but not shown in the form.
-- [ ] `track-session/page.tsx`: move the `router.push('/login')` redirect out of render and into an effect.
+- [x] Profile: the belt rank dropdown showed blank even though `beltRank` was set. Cause: the archived v2 UI (`archive/ui-v2-v0-export`) wrote capitalised values (`"White"`) to dev; the current app writes lowercase. Dev data was fixed by hand, and the profile page now lowercases `beltRank` when reading. **If porting UI from the archive branch, keep the values lowercase.** (`stripes` is ignored for now.)
+- [x] `track-session/page.tsx`: move the `router.push('/login')` redirect out of render and into an effect.
 - [x] Duration input: stop `parseInt('')` from producing `NaN`; validate that it's a positive whole number before saving. The field is now kept as a string and validated on submit by `lib/duration.ts` (1–1440 whole minutes, unit tested).
 - [x] Dashboard: calculate month boundaries in local time, not UTC from `toISOString()`. Uses `monthRange()` from `lib/dates.ts`.
 - [x] Track-session: the default date used UTC, so in the evening (Central time) it defaulted to tomorrow. It now uses `todayLocal()` from `lib/dates.ts`.
 - [x] Dashboard: remove or implement the empty table placeholder (see section 5, sessions list). Removed; the sessions list is part of MVP planning.
-- [ ] Replace `alert()` with inline success and error messages.
+- [x] Replace `alert()` with inline success and error messages. `components/FormMessage.tsx` is used on track-session, profile and signup. Save buttons are disabled while saving, profile now reports save errors, and signup shows a "check your email" screen with a log-in link.
 - [x] Remove the debugging `console.log` calls from the landing page. They went when the landing page was rewritten for the server-side community total.
 - [x] Add the first Jest tests for the duration parsing and month boundary logic, so `npm test` passes.
   - [x] Duration parsing (`lib/duration.test.ts`); `npm test` now passes.
