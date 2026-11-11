@@ -6,7 +6,7 @@ import { Providers, useAuth } from '@/components/providers'
 import Link from 'next/link'
 import { Button } from '../components/ui/button'
 import Script from 'next/script'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MenuIcon } from 'lucide-react'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -71,6 +71,25 @@ function Footer() {
   )
 }
 
+function ThemeToggle() {
+  const toggleTheme = () => {
+    const currentTheme = document.documentElement.classList.toggle('dark')
+    localStorage.setItem('theme', currentTheme ? 'dark' : 'light')
+  }
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  return (
+    <button onClick={toggleTheme} className="p-2">
+      Toggle Dark Mode
+    </button>
+  )
+}
 
 export default function RootLayout({
   children,
@@ -112,6 +131,7 @@ export default function RootLayout({
                   </Button>
                 </div>
                 <MobileNav />
+                <ThemeToggle />
               </div>
             </nav>
             <main className="container mx-auto px-4 flex-grow py-8">
