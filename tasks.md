@@ -37,11 +37,18 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - **Security finding:** both projects have a `/{document=**}` catch-all that lets *any* signed-in user read, write and delete *every* document (all users' profiles and sessions). Firestore allows access if any rule matches, so the stricter rules in prod have no effect. Sign-up is open, so the data is effectively public, which contradicts the FAQ's privacy promise. The `posts`, `admin` and `settings` rules are template leftovers.
   - From now on the repo is the source of truth: rules edited in the console will be overwritten by the next deploy.
 - [ ] **Priority:** tighten the rules. Users can read and write only `users/{uid}/**`. Remove the catch-all and the template leftovers. Add emulator tests. Deploy to dev, check the app, then deploy to prod.
-  - `stats/global` must stay writable by signed-in users until the community total is replaced (next item), or session logging breaks.
-- [ ] Replace the client-written `stats/global` community total (no Cloud Functions). Options:
-  - **B:** a public per-user totals collection (`publicTotals/{uid}`), summed with an aggregation query. Each user can only change their own total, but it has to be kept in sync when sessions are edited or deleted.
-  - **C (recommended):** a Next.js route on Vercel that uses the Admin SDK to `sum(duration)` over all sessions, cached (e.g. hourly). Sessions stay private, nothing can be tampered with, and it stays accurate. Needs the service account key as a secret Vercel env var. Costs about 1 read per 1,000 sessions per refresh.
-  - Then remove client access to `stats/global` (or delete it).
+  - [x] New `firestore.rules`: each user can access only `users/{uid}` and its subcollections (sessions, events); profile delete is blocked; everything else is denied.
+  - [x] `stats/global`: anyone can read. Signed-in users can still write (needed until the next item), but only the two known fields, a non-negative number, and a change of at most 1,440 minutes per write.
+  - [x] 18 emulator tests in `tests/rules/` (`npm run test:rules`, needs Java 21: `brew install openjdk@21`). The old prod rules fail 9 of them; the new rules pass all 18.
+  - [ ] Deploy to dev and check the app.
+  - [ ] Deploy to prod (`firebase deploy --only firestore:rules --project prod`) and check the app.
+- [ ] Replace the client-written `stats/global` community total. **Decision: option C, staying on free tiers, no Cloud Functions or Blaze plan.**
+  - A Next.js route on Vercel uses the Admin SDK to run an aggregation query: `sum(duration)` over the `sessions` collection group. Sessions stay private, nothing can be tampered with, and the total stays accurate when sessions are edited or deleted.
+  - Update when data changes, not by polling: after a session is saved, edited or deleted, the app triggers on-demand revalidation of the cached total. A long time-based expiry (e.g. daily) is a backstop.
+  - Cost: about 1 read per 1,000 sessions per recalculation, well within the Spark free tier (50k reads a day).
+  - Needs the service account key as a secret (non-`NEXT_PUBLIC_`) Vercel env var: dev key for Preview/Development, a prod key for Production.
+  - Then remove client writes to `stats/global` from the rules and `lib/stats.ts` (or delete the doc).
+  - Rejected: B (public per-user totals, which have to be kept in sync and can be tampered with by each user), and Cloud Functions (need the Blaze billing plan).
 - [x] Set up a separate dev Firebase project or the emulator, so local work doesn't touch prod data. This already exists: `.env.local` points to dev and `.env.production.local` to prod. The service account key in `scripts/` is for dev.
 - [ ] Check that the seed/wipe scripts still run against dev.
 

@@ -1,54 +1,57 @@
-// Baseline: copied unchanged from the rules deployed to train-tracker-prod
-// (released 2025-01-31). Dev had a single catch-all allowing any signed-in user.
-// WARNING: the /{document=**} catch-all grants any signed-in user full access to
-// every document, overriding the stricter rules below. See tasks.md section 2.
-
 rules_version = '2';
+
+// Firestore security rules for the BJJ Training Tracker.
+// This file is the source of truth: deploy with
+//   firebase deploy --only firestore:rules                  (dev, the default)
+//   firebase deploy --only firestore:rules --project prod   (prod)
+// Rules edited in the Firebase console will be overwritten by the next deploy.
+// Tests: npm run test:rules (runs against the local emulator).
+//
+// The Admin SDK (seed/wipe scripts, server routes) bypasses these rules.
+// Anything not matched below is denied.
+
 service cloud.firestore {
   match /databases/{database}/documents {
-  	
-    // This allows access to /stats/global collection for the landing page
-  	match /stats/{doc} {
-      allow read: if true; // Public read access
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
-    
-    // Require authentication for all access
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    function signedIn() {
+      return request.auth != null;
     }
 
-    // Users Collection - Users can only read/update their own profile
-    match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
-      allow delete: if false; // Prevent users from deleting their profile
-
-      // Ensure valid data structure
-      allow write: if request.resource.data.keys().hasAll(["email", "username"])
-        && request.resource.data.email is string
-        && request.resource.data.username is string;
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
     }
 
-    // Posts Collection - Public read access, but users can only modify their own posts
-    match /posts/{postId} {
-      allow read: if true; // Publicly readable posts
-      allow write: if request.auth != null && request.auth.uid == resource.data.owner;
+    // Community total shown on the landing page.
+    match /stats/global {
+      allow read: if true;
 
-      // Prevent users from creating too many posts
-      allow create: if request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.postCount < 10;
+      // TEMPORARY: the browser updates this total after logging a session
+      // (lib/stats.ts). Remove client writes once the total is calculated on
+      // the server (tasks.md section 2). Until then, limit tampering: only the
+      // two known fields, a non-negative number, and at most one day's worth of
+      // minutes per write.
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['totalTrainingMinutes', 'lastUpdated'])
+        && request.resource.data.totalTrainingMinutes is number
+        && request.resource.data.totalTrainingMinutes >= 0
+        && request.resource.data.totalTrainingMinutes <= 1440;
+      allow update: if signedIn()
+        && request.resource.data.keys().hasOnly(['totalTrainingMinutes', 'lastUpdated'])
+        && request.resource.data.totalTrainingMinutes is number
+        && request.resource.data.totalTrainingMinutes >= 0
+        && request.resource.data.totalTrainingMinutes - resource.data.totalTrainingMinutes <= 1440
+        && request.resource.data.totalTrainingMinutes - resource.data.totalTrainingMinutes >= -1440;
     }
 
-    // Admin Collection - Only admins can read/write
-    match /admin/{doc} {
-      allow read, write: if request.auth.token.admin == true;
-    }
+    // Each user's profile and everything under it (sessions, events) is
+    // private to that user.
+    match /users/{uid} {
+      allow read, create, update: if isOwner(uid);
+      allow delete: if false; // account deletion is not supported in the app yet
 
-    // Settings Collection - Prevent deletion of critical settings
-    match /settings/{doc} {
-      allow read, write: if request.auth.token.admin == true;
-      allow delete: if false; // Prevent deletion
+      match /{subcollection}/{docId} {
+        allow read, write: if isOwner(uid);
+      }
     }
   }
 }
