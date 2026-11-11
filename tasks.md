@@ -4,14 +4,16 @@ Next steps after the November 2026 codebase review, in rough priority order.
 
 ## 1. Update dependencies
 
-- [ ] Move `firebase-admin` and `firebase-functions` out of runtime `dependencies`. They're only used by the seed/wipe scripts and cause most of the `npm audit` findings.
-- [ ] Apply safe minor bumps: `firebase` 11.1 → 11.10, `firebase-admin` 13.0 → 13.10, Radix, Testing Library, postcss, autoprefixer.
-- [ ] Upgrade Next 14.2.16 → 16.x, together with React 18 → 19 and `@types/react*`.
-  - [ ] Migrate ESLint 8 → 9 with a flat config, and replace `next lint`.
-  - [ ] Check that `next/font`, `next/script` and client components still work.
-- [ ] Remove duplicate configs: keep one of `tailwind.config.js` / `.ts` and one of `postcss.config.js` / `.mjs`.
-- [ ] Hold for later: Tailwind 4, TypeScript 7, lucide-react 1.x.
-- [ ] Done when `npm audit` shows no critical or high issues in runtime dependencies, and `tsc`, lint and build all pass.
+- [x] Move `firebase-admin` and `firebase-functions` out of runtime `dependencies`. `firebase-functions` was unused and has been removed; `firebase-admin` is now a dev dependency.
+- [x] Apply safe minor bumps: `firebase` 11.1 → 11.10, `firebase-admin` 13.0 → 13.10, Radix, Testing Library, postcss, autoprefixer.
+- [x] Upgrade Next 14.2.16 → 16.4, together with React 18 → 19 and `@types/react*`.
+  - [x] Migrate ESLint 8 → 9 with a flat config (`eslint.config.mjs`); `npm run lint` now runs `eslint .`.
+  - [x] Check that `next/font`, `next/script` and client components still work. The build passes and all pages return 200 in dev; still needs a click-through in the browser.
+- [x] Remove duplicate configs: kept `tailwind.config.ts` (merged with `.js`, which fixes the missing Select dropdown colours) and `postcss.config.js`.
+- [ ] Hold for later: Tailwind 4, TypeScript 7, lucide-react 1.x, firebase 12/13.
+- [x] Done when `npm audit` shows no critical or high issues in runtime dependencies, and `tsc`, lint and build all pass.
+  - One known exception: `@grpc/grpc-js` (high) comes from `@firebase/firestore`, which pins `~1.9.0` up to and including firebase 13. It's only used on the server, not in the browser. Accepted for now; check again with each Firebase update.
+- [ ] Follow-up for task 3: `react-hooks/set-state-in-effect` is lowered to a warning in `eslint.config.mjs` (dashboard and profile pages). Set it back to an error once data fetching is fixed.
 
 ## 2. Firestore backend
 
@@ -32,7 +34,7 @@ Next steps after the November 2026 codebase review, in rough priority order.
 - [ ] Remove the debugging `console.log` calls from the landing page.
 - [ ] Add the first Jest tests for the duration parsing and month boundary logic, so `npm test` passes.
 
-## 4. ThemeToggle (uncommitted work)
+## 4. ThemeToggle (uncommitted work on branch wip/theme-toggle)
 
 - [ ] Decide: finish it, or drop it and port the theme provider and mode toggle from `archive/ui-v2-v0-export`. Porting is probably better.
 - [ ] Use the existing `.dark` theme tokens in `globals.css` instead of the `.dark body { bg-gray-900 }` override.
