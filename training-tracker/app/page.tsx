@@ -4,35 +4,27 @@ import { useAuth } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/components/providers'
+import type { CommunityStats } from '@/lib/communityStats'
 
 export default function Home() {
   const { user } = useAuth()
-  const [totalMinutes, setTotalMinutes] = useState<number>(0)
+  const [totalMinutes, setTotalMinutes] = useState<number | null>(null) // null = unavailable
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchTotalMinutes() {
-      try {
-        setLoading(true)
-        const statsDoc = await getDoc(doc(db, 'stats', 'global'))
-        console.log("Stats doc exists:", statsDoc.exists());
-        if (statsDoc.exists()) {
-          const data = statsDoc.data();
-          console.log("Stats data:", data);
-          setTotalMinutes(data.totalTrainingMinutes || 0)
-        } else {
-          console.log("No stats document found");
-        }
-      } catch (error) {
-        console.error('Error fetching total minutes:', error)
-      } finally {
-        setLoading(false)
-      }
+    let cancelled = false
+    fetch('/api/community-stats')
+      .then((res) => (res.ok ? (res.json() as Promise<CommunityStats>) : Promise.reject(res.status)))
+      .then((stats) => {
+        if (!cancelled) setTotalMinutes(stats.totalMinutes)
+      })
+      .catch((error) => console.error('Error fetching community stats:', error))
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-
-    fetchTotalMinutes()
   }, [])
 
   return (
@@ -43,11 +35,11 @@ export default function Home() {
       <div className="text-lg mb-8 text-gray-600">
         {loading ? (
           <span>Loading community stats...</span>
-        ) : (
+        ) : totalMinutes !== null ? (
           <>
             <span className="font-bold">{totalMinutes.toLocaleString()}</span> training minutes logged by our community
           </>
-        )}
+        ) : null}
       </div>
       
       {!user ? (

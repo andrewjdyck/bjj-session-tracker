@@ -7,7 +7,6 @@ import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { updateGlobalStats } from '@/lib/stats'
 import { MAX_SESSION_MINUTES, parseDuration } from '@/lib/duration'
 
 type SessionData = {
@@ -50,7 +49,17 @@ export default function TrackSession() {
           duration,
           timestamp: new Date(),
         })
-        await updateGlobalStats(duration)
+        // Ask the server to recalculate the community total. Best effort: the
+        // session is already saved, and the total also refreshes daily.
+        user
+          .getIdToken()
+          .then((token) =>
+            fetch('/api/community-stats/revalidate', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+            })
+          )
+          .catch((error) => console.error('Failed to refresh community stats:', error))
         alert('Session logged successfully')
         setSessionData({
           date: new Date().toISOString().split('T')[0],

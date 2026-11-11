@@ -49,6 +49,19 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - Cost: about 1 read per 1,000 sessions per recalculation, well within the Spark free tier (50k reads a day).
   - Needs the service account key as a secret (non-`NEXT_PUBLIC_`) Vercel env var: dev key for Preview/Development, a prod key for Production.
   - Then remove client writes to `stats/global` from the rules and `lib/stats.ts` (or delete the doc).
+  - **Dev: done (on `dev` branch).**
+    - [x] `lib/firebaseAdmin.ts` (Admin SDK; checks that the service account matches `NEXT_PUBLIC_FIREBASE_PROJECT_ID`), `lib/communityStats.ts` (cached `sum`/`count` aggregation, tag `community-stats`, daily expiry).
+    - [x] `GET /api/community-stats`; `POST /api/community-stats/revalidate` (requires a Firebase ID token; expires the cache immediately).
+    - [x] The landing page reads the API; track-session calls revalidate after saving; `lib/stats.ts` has been removed. `firebase-admin` is back in runtime dependencies.
+    - [x] Collection-group index on `sessions.duration` in `firestore.indexes.json`, deployed to dev.
+    - [x] Vercel: `FIREBASE_SERVICE_ACCOUNT` (dev key, sensitive) for Preview. Local dev uses `FIREBASE_SERVICE_ACCOUNT_FILE=scripts/firebase-service-account.json` in `.env.local`.
+    - [x] End-to-end check on local dev: the cached total stays the same until revalidation, then reflects the change; revalidate returns 401 without a valid token.
+    - [ ] Check the Preview deploy in the browser.
+  - **Prod rollout (not started):**
+    - [ ] Create a service account key for `train-tracker-prod` (Firebase console → Project settings → Service accounts) and add it as a sensitive Production `FIREBASE_SERVICE_ACCOUNT` in Vercel.
+    - [ ] Deploy indexes to prod (`firebase deploy --only firestore:indexes --project prod`) and wait for READY. A newly READY index can still fail briefly while it rolls out.
+    - [ ] Merge `dev` into `main`.
+    - [ ] Remove client writes to `stats/global` from `firestore.rules` and the rules tests; deploy rules to dev and prod. Optionally delete the `stats/global` docs.
   - Rejected: B (public per-user totals, which have to be kept in sync and can be tampered with by each user), and Cloud Functions (need the Blaze billing plan).
 - [x] Set up a separate dev Firebase project or the emulator, so local work doesn't touch prod data. This already exists: `.env.local` points to dev and `.env.production.local` to prod. The service account key in `scripts/` is for dev.
 - [ ] Check that the seed/wipe scripts still run against dev.
