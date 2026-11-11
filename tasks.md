@@ -29,7 +29,7 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - [x] Preview from `dev` checked in the browser; `dev` merged into `main` and pushed (`b9796ba`).
   - [x] Production deploy succeeded (first since Feb 2025) and is live at the production URL, using `train-tracker-prod`.
   - [ ] Do the prod check in the browser (item at the top of this section).
-  - Note: pushing `dev` the first time didn't trigger a Vercel Preview deploy, so it was started by hand through the Vercel API. Check that later pushes deploy automatically.
+  - Pushes to `dev` weren't creating Vercel Preview deploys. Cause: the project had `previewDeploymentsDisabled = true`, which makes Vercel ignore every branch except `main`. This setting isn't easy to find in the dashboard, so it was set to `false` through the Vercel API (`PATCH /v9/projects/{id}`).
 - [x] Find out what the old `bjj-session-tracker` and `bjj-session-tracker-dev` Firebase projects are. Neither app config uses them; they're from the old React app. Reviewed and OK to delete from the Firebase console.
 - [x] Pull the deployed security rules into the repo (`firebase.json`, `.firebaserc`, `firestore.rules`) and deploy them from there.
   - Files are in `training-tracker/`. `.firebaserc` defaults to **dev**; deploy with `firebase deploy --only firestore:rules` (dev) or `--project prod`. Neither project has custom indexes.
