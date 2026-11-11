@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "train-tracker-e753c",
+    "dev": "train-tracker-e753c",
+    "prod": "train-tracker-prod"
+  }
+}

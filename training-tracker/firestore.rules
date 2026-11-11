@@ -1,0 +1,54 @@
+// Baseline: copied unchanged from the rules deployed to train-tracker-prod
+// (released 2025-01-31). Dev had a single catch-all allowing any signed-in user.
+// WARNING: the /{document=**} catch-all grants any signed-in user full access to
+// every document, overriding the stricter rules below. See tasks.md section 2.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	
+    // This allows access to /stats/global collection for the landing page
+  	match /stats/{doc} {
+      allow read: if true; // Public read access
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Require authentication for all access
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Users Collection - Users can only read/update their own profile
+    match /users/{userId} {
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+      allow delete: if false; // Prevent users from deleting their profile
+
+      // Ensure valid data structure
+      allow write: if request.resource.data.keys().hasAll(["email", "username"])
+        && request.resource.data.email is string
+        && request.resource.data.username is string;
+    }
+
+    // Posts Collection - Public read access, but users can only modify their own posts
+    match /posts/{postId} {
+      allow read: if true; // Publicly readable posts
+      allow write: if request.auth != null && request.auth.uid == resource.data.owner;
+
+      // Prevent users from creating too many posts
+      allow create: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.postCount < 10;
+    }
+
+    // Admin Collection - Only admins can read/write
+    match /admin/{doc} {
+      allow read, write: if request.auth.token.admin == true;
+    }
+
+    // Settings Collection - Prevent deletion of critical settings
+    match /settings/{doc} {
+      allow read, write: if request.auth.token.admin == true;
+      allow delete: if false; // Prevent deletion
+    }
+  }
+}

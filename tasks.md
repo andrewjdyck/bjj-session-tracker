@@ -31,9 +31,17 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - [ ] Do the prod check in the browser (item at the top of this section).
   - Note: pushing `dev` the first time didn't trigger a Vercel Preview deploy, so it was started by hand through the Vercel API. Check that later pushes deploy automatically.
 - [x] Find out what the old `bjj-session-tracker` and `bjj-session-tracker-dev` Firebase projects are. Neither app config uses them; they're from the old React app. Reviewed and OK to delete from the Firebase console.
-- [ ] Pull the deployed security rules into the repo (`firebase.json`, `.firebaserc`, `firestore.rules`) and deploy them from there.
-- [ ] Rules: users can read and write only `users/{uid}/**`; `stats/global` is publicly readable but not writable by clients.
-- [ ] Move the `stats/global` total update out of the browser and into a Cloud Function triggered when a session is created or deleted.
+- [x] Pull the deployed security rules into the repo (`firebase.json`, `.firebaserc`, `firestore.rules`) and deploy them from there.
+  - Files are in `training-tracker/`. `.firebaserc` defaults to **dev**; deploy with `firebase deploy --only firestore:rules` (dev) or `--project prod`. Neither project has custom indexes.
+  - `firestore.rules` is the prod ruleset, unchanged. Dev had only a catch-all rule.
+  - **Security finding:** both projects have a `/{document=**}` catch-all that lets *any* signed-in user read, write and delete *every* document (all users' profiles and sessions). Firestore allows access if any rule matches, so the stricter rules in prod have no effect. Sign-up is open, so the data is effectively public, which contradicts the FAQ's privacy promise. The `posts`, `admin` and `settings` rules are template leftovers.
+  - From now on the repo is the source of truth: rules edited in the console will be overwritten by the next deploy.
+- [ ] **Priority:** tighten the rules. Users can read and write only `users/{uid}/**`. Remove the catch-all and the template leftovers. Add emulator tests. Deploy to dev, check the app, then deploy to prod.
+  - `stats/global` must stay writable by signed-in users until the community total is replaced (next item), or session logging breaks.
+- [ ] Replace the client-written `stats/global` community total (no Cloud Functions). Options:
+  - **B:** a public per-user totals collection (`publicTotals/{uid}`), summed with an aggregation query. Each user can only change their own total, but it has to be kept in sync when sessions are edited or deleted.
+  - **C (recommended):** a Next.js route on Vercel that uses the Admin SDK to `sum(duration)` over all sessions, cached (e.g. hourly). Sessions stay private, nothing can be tampered with, and it stays accurate. Needs the service account key as a secret Vercel env var. Costs about 1 read per 1,000 sessions per refresh.
+  - Then remove client access to `stats/global` (or delete it).
 - [x] Set up a separate dev Firebase project or the emulator, so local work doesn't touch prod data. This already exists: `.env.local` points to dev and `.env.production.local` to prod. The service account key in `scripts/` is for dev.
 - [ ] Check that the seed/wipe scripts still run against dev.
 
