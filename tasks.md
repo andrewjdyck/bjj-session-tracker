@@ -26,6 +26,10 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - Every deploy since Feb 2025 failed with `auth/invalid-api-key`, because the Vercel project had no env vars left. Production kept serving the 1 Feb 2025 build (`train-tracker-prod`).
   - Fixed: added all 8 `NEXT_PUBLIC_*` vars. Production uses `train-tracker-prod`; Preview and Development use dev (`train-tracker-e753c`). Values checked against the local `.env` files.
 - [ ] Release today's work to production: check the Preview deploy from `dev`, merge `dev` into `main`, then check prod (item above).
+  - [x] Preview from `dev` checked in the browser; `dev` merged into `main` and pushed (`b9796ba`).
+  - [x] Production deploy succeeded (first since Feb 2025) and is live at the production URL, using `train-tracker-prod`.
+  - [ ] Do the prod check in the browser (item at the top of this section).
+  - Note: pushing `dev` the first time didn't trigger a Vercel Preview deploy, so it was started by hand through the Vercel API. Check that later pushes deploy automatically.
 - [x] Find out what the old `bjj-session-tracker` and `bjj-session-tracker-dev` Firebase projects are. Neither app config uses them; they're from the old React app. Reviewed and OK to delete from the Firebase console.
 - [ ] Pull the deployed security rules into the repo (`firebase.json`, `.firebaserc`, `firestore.rules`) and deploy them from there.
 - [ ] Rules: users can read and write only `users/{uid}/**`; `stats/global` is publicly readable but not writable by clients.
@@ -36,7 +40,7 @@ Next steps after the November 2026 codebase review, in rough priority order.
 ## 3. Bugs and rough edges
 
 - [x] Profile: a user document missing a field (e.g. `rankDate`) caused the "controlled to uncontrolled input" warning, and saving overwrote the whole user document. Fixed: missing fields now default to `''`, and saving uses `merge: true`.
-
+- [ ] Profile: the belt rank dropdown shows blank even though `beltRank` is set. Firestore has capitalised values (`"White"`, `"Brown"`), but the `SelectItem` values are lowercase (`white`, `brown`), so nothing matches. Decide on one canonical form (ties into the data model in task 5) and normalise when reading, or migrate the existing docs. `stripes` is also stored but not shown in the form.
 - [ ] `track-session/page.tsx`: move the `router.push('/login')` redirect out of render and into an effect.
 - [ ] Duration input: stop `parseInt('')` from producing `NaN`; validate that it's a positive whole number before saving.
 - [ ] Dashboard: calculate month boundaries in local time, not UTC from `toISOString()`.
