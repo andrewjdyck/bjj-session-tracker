@@ -21,7 +21,7 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - [x] Dev (`train-tracker-dev`, project ID `train-tracker-e753c`): Auth and Firestore work, and the app was checked in the browser. The earlier login failure was a forgotten password.
   - [ ] Prod (`train-tracker-prod`): not checked yet.
 - [x] Review the Vercel setup: which Firebase project and env vars each environment uses, and whether pushes to `main` deploy to production.
-  - Project `training-tracker`, root `training-tracker`, Node 22.x. Production URL: https://training-tracker-au6esyxpatl.vercel.app
+  - Project `training-tracker`, root `training-tracker`, Node 22.x. Production URL: https://training-tracks.vercel.app (domain added 2026-11-11; the old `training-tracker-au6esyxpatl.vercel.app` alias no longer works)
   - Pushes to `main` deploy to **Production**; other branches get Preview deploys. Day-to-day work now happens on `dev`, and `main` is only for releases.
   - Every deploy since Feb 2025 failed with `auth/invalid-api-key`, because the Vercel project had no env vars left. Production kept serving the 1 Feb 2025 build (`train-tracker-prod`).
   - Fixed: added all 8 `NEXT_PUBLIC_*` vars. Production uses `train-tracker-prod`; Preview and Development use dev (`train-tracker-e753c`). Values checked against the local `.env` files.
@@ -43,7 +43,7 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - [x] Deploy to dev and check the app. Live check: a user gets 403 on another user's profile and sessions; the app was clicked through in the browser.
   - [x] Deploy to prod (`firebase deploy --only firestore:rules --project prod`). The live ruleset matches the repo; signed out, `stats/global` is readable and `users` is denied.
   - [ ] Check the live site while signed in (log in, log a session, profile, dashboard).
-- [ ] Replace the client-written `stats/global` community total. **Decision: option C, staying on free tiers, no Cloud Functions or Blaze plan.**
+- [x] Replace the client-written `stats/global` community total. **Decision: option C, staying on free tiers, no Cloud Functions or Blaze plan.**
   - A Next.js route on Vercel uses the Admin SDK to run an aggregation query: `sum(duration)` over the `sessions` collection group. Sessions stay private, nothing can be tampered with, and the total stays accurate when sessions are edited or deleted.
   - Update when data changes, not by polling: after a session is saved, edited or deleted, the app triggers on-demand revalidation of the cached total. A long time-based expiry (e.g. daily) is a backstop.
   - Cost: about 1 read per 1,000 sessions per recalculation, well within the Spark free tier (50k reads a day).
@@ -57,11 +57,12 @@ Next steps after the November 2026 codebase review, in rough priority order.
     - [x] Vercel: `FIREBASE_SERVICE_ACCOUNT` (dev key, sensitive) for Preview. Local dev uses `FIREBASE_SERVICE_ACCOUNT_FILE=scripts/firebase-service-account.json` in `.env.local`.
     - [x] End-to-end check on local dev: the cached total stays the same until revalidation, then reflects the change; revalidate returns 401 without a valid token.
     - [ ] Check the Preview deploy in the browser.
-  - **Prod rollout (not started):**
-    - [ ] Create a service account key for `train-tracker-prod` (Firebase console → Project settings → Service accounts) and add it as a sensitive Production `FIREBASE_SERVICE_ACCOUNT` in Vercel.
-    - [ ] Deploy indexes to prod (`firebase deploy --only firestore:indexes --project prod`) and wait for READY. A newly READY index can still fail briefly while it rolls out.
-    - [ ] Merge `dev` into `main`.
-    - [ ] Remove client writes to `stats/global` from `firestore.rules` and the rules tests; deploy rules to dev and prod. Optionally delete the `stats/global` docs.
+  - **Prod rollout: done 2026-11-11.**
+    - [x] Create a service account key for `train-tracker-prod` (Firebase console → Project settings → Service accounts) and add it as a sensitive Production `FIREBASE_SERVICE_ACCOUNT` in Vercel.
+    - [x] Deploy indexes to prod (`firebase deploy --only firestore:indexes --project prod`) and wait for READY. A newly READY index can still fail briefly while it rolls out.
+    - [x] Merge `dev` into `main`. Live `/api/community-stats` returns 240 min / 3 sessions; the old counter said 180 and had drifted.
+    - [x] Remove client writes to `stats/global` from `firestore.rules` and the rules tests; deploy rules to dev and prod. `stats/global` is now read-only (legacy).
+    - [ ] Later: delete the `stats/global` docs and their rule, once old browser sessions are gone.
   - Rejected: B (public per-user totals, which have to be kept in sync and can be tampered with by each user), and Cloud Functions (need the Blaze billing plan).
 - [x] Set up a separate dev Firebase project or the emulator, so local work doesn't touch prod data. This already exists: `.env.local` points to dev and `.env.production.local` to prod. The service account key in `scripts/` is for dev.
 - [ ] Check that the seed/wipe scripts still run against dev.
