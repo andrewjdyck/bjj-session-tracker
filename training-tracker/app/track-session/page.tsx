@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { updateGlobalStats } from '@/lib/stats'
+import { MAX_SESSION_MINUTES, parseDuration } from '@/lib/duration'
 
 type SessionData = {
   date: string
-  duration: number
+  duration: string // as typed; parsed and validated on submit
   notes: string
 }
 
@@ -20,7 +21,7 @@ export default function TrackSession() {
   const router = useRouter()
   const [sessionData, setSessionData] = useState<SessionData>({
     date: new Date().toISOString().split('T')[0],
-    duration: 60,
+    duration: '60',
     notes: '',
   })
 
@@ -32,22 +33,28 @@ export default function TrackSession() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setSessionData((prev) => ({ ...prev, [name]: name === 'duration' ? parseInt(value) : value }))
+    setSessionData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const duration = parseDuration(sessionData.duration)
+    if (duration === null) {
+      alert(`Duration must be a whole number of minutes between 1 and ${MAX_SESSION_MINUTES}.`)
+      return
+    }
     if (user) {
       try {
         await addDoc(collection(db, 'users', user.uid, 'sessions'), {
           ...sessionData,
+          duration,
           timestamp: new Date(),
         })
-        await updateGlobalStats(sessionData.duration)
+        await updateGlobalStats(duration)
         alert('Session logged successfully')
         setSessionData({
           date: new Date().toISOString().split('T')[0],
-          duration: 60,
+          duration: '60',
           notes: '',
         })
       } catch (error) {
@@ -77,6 +84,9 @@ export default function TrackSession() {
             value={sessionData.duration}
             onChange={handleInputChange}
             placeholder="Duration (minutes)"
+            min={1}
+            max={MAX_SESSION_MINUTES}
+            step={1}
             required
           />
         </div>

@@ -40,8 +40,9 @@ Next steps after the November 2026 codebase review, in rough priority order.
   - [x] New `firestore.rules`: each user can access only `users/{uid}` and its subcollections (sessions, events); profile delete is blocked; everything else is denied.
   - [x] `stats/global`: anyone can read. Signed-in users can still write (needed until the next item), but only the two known fields, a non-negative number, and a change of at most 1,440 minutes per write.
   - [x] 18 emulator tests in `tests/rules/` (`npm run test:rules`, needs Java 21: `brew install openjdk@21`). The old prod rules fail 9 of them; the new rules pass all 18.
-  - [ ] Deploy to dev and check the app.
-  - [ ] Deploy to prod (`firebase deploy --only firestore:rules --project prod`) and check the app.
+  - [x] Deploy to dev and check the app. Live check: a user gets 403 on another user's profile and sessions; the app was clicked through in the browser.
+  - [x] Deploy to prod (`firebase deploy --only firestore:rules --project prod`). The live ruleset matches the repo; signed out, `stats/global` is readable and `users` is denied.
+  - [ ] Check the live site while signed in (log in, log a session, profile, dashboard).
 - [ ] Replace the client-written `stats/global` community total. **Decision: option C, staying on free tiers, no Cloud Functions or Blaze plan.**
   - A Next.js route on Vercel uses the Admin SDK to run an aggregation query: `sum(duration)` over the `sessions` collection group. Sessions stay private, nothing can be tampered with, and the total stays accurate when sessions are edited or deleted.
   - Update when data changes, not by polling: after a session is saved, edited or deleted, the app triggers on-demand revalidation of the cached total. A long time-based expiry (e.g. daily) is a backstop.
@@ -57,12 +58,14 @@ Next steps after the November 2026 codebase review, in rough priority order.
 - [x] Profile: a user document missing a field (e.g. `rankDate`) caused the "controlled to uncontrolled input" warning, and saving overwrote the whole user document. Fixed: missing fields now default to `''`, and saving uses `merge: true`.
 - [ ] Profile: the belt rank dropdown shows blank even though `beltRank` is set. Firestore has capitalised values (`"White"`, `"Brown"`), but the `SelectItem` values are lowercase (`white`, `brown`), so nothing matches. Decide on one canonical form (ties into the data model in task 5) and normalise when reading, or migrate the existing docs. `stripes` is also stored but not shown in the form.
 - [ ] `track-session/page.tsx`: move the `router.push('/login')` redirect out of render and into an effect.
-- [ ] Duration input: stop `parseInt('')` from producing `NaN`; validate that it's a positive whole number before saving.
+- [x] Duration input: stop `parseInt('')` from producing `NaN`; validate that it's a positive whole number before saving. The field is now kept as a string and validated on submit by `lib/duration.ts` (1–1440 whole minutes, unit tested).
 - [ ] Dashboard: calculate month boundaries in local time, not UTC from `toISOString()`.
 - [ ] Dashboard: remove or implement the empty table placeholder (see section 5, sessions list).
 - [ ] Replace `alert()` with inline success and error messages.
 - [ ] Remove the debugging `console.log` calls from the landing page.
 - [ ] Add the first Jest tests for the duration parsing and month boundary logic, so `npm test` passes.
+  - [x] Duration parsing (`lib/duration.test.ts`); `npm test` now passes.
+  - [ ] Month boundaries (with the dashboard fix).
 
 ## 4. ThemeToggle (uncommitted work on branch wip/theme-toggle)
 
