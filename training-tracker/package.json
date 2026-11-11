@@ -9,8 +9,9 @@
     "lint": "eslint .",
     "seed-db": "ts-node scripts/seedFirestore.ts",
     "wipe-db": "ts-node scripts/wipeFirestore.ts",
-    "test": "jest",
-    "test:rules": "PATH=\"$(brew --prefix openjdk@21 2>/dev/null)/bin:$PATH\" firebase emulators:exec --only firestore --project demo-bjj-tracker \"RULES_TESTS=1 jest tests/rules\""
+    "test": "jest && npm run test:timezones",
+    "test:rules": "PATH=\"$(brew --prefix openjdk@21 2>/dev/null)/bin:$PATH\" firebase emulators:exec --only firestore --project demo-bjj-tracker \"RULES_TESTS=1 jest tests/rules\"",
+    "test:timezones": "TZ=America/Chicago jest lib/dates.test.ts && TZ=Asia/Tokyo jest lib/dates.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",

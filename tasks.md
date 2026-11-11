@@ -13,7 +13,7 @@ Next steps after the November 2026 codebase review, in rough priority order.
 - [ ] Hold for later: Tailwind 4, TypeScript 7, lucide-react 1.x, firebase 12/13.
 - [x] Done when `npm audit` shows no critical or high issues in runtime dependencies, and `tsc`, lint and build all pass.
   - One known exception: `@grpc/grpc-js` (high) comes from `@firebase/firestore`, which pins `~1.9.0` up to and including firebase 13. It's only used on the server, not in the browser. Accepted for now; check again with each Firebase update.
-- [ ] Follow-up for task 3: `react-hooks/set-state-in-effect` is lowered to a warning in `eslint.config.mjs`. The profile page is fixed; only the dashboard is left. Set the rule back to an error once that's fixed.
+- [x] Follow-up for task 3: `react-hooks/set-state-in-effect` is lowered to a warning in `eslint.config.mjs`. Profile and dashboard are both fixed, and the rule is back to an error.
 
 ## 2. Firestore backend
 
@@ -73,13 +73,14 @@ Next steps after the November 2026 codebase review, in rough priority order.
 - [ ] Profile: the belt rank dropdown shows blank even though `beltRank` is set. Firestore has capitalised values (`"White"`, `"Brown"`), but the `SelectItem` values are lowercase (`white`, `brown`), so nothing matches. Decide on one canonical form (ties into the data model in task 5) and normalise when reading, or migrate the existing docs. `stripes` is also stored but not shown in the form.
 - [ ] `track-session/page.tsx`: move the `router.push('/login')` redirect out of render and into an effect.
 - [x] Duration input: stop `parseInt('')` from producing `NaN`; validate that it's a positive whole number before saving. The field is now kept as a string and validated on submit by `lib/duration.ts` (1–1440 whole minutes, unit tested).
-- [ ] Dashboard: calculate month boundaries in local time, not UTC from `toISOString()`.
-- [ ] Dashboard: remove or implement the empty table placeholder (see section 5, sessions list).
+- [x] Dashboard: calculate month boundaries in local time, not UTC from `toISOString()`. Uses `monthRange()` from `lib/dates.ts`.
+- [x] Track-session: the default date used UTC, so in the evening (Central time) it defaulted to tomorrow. It now uses `todayLocal()` from `lib/dates.ts`.
+- [x] Dashboard: remove or implement the empty table placeholder (see section 5, sessions list). Removed; the sessions list is part of MVP planning.
 - [ ] Replace `alert()` with inline success and error messages.
-- [ ] Remove the debugging `console.log` calls from the landing page.
-- [ ] Add the first Jest tests for the duration parsing and month boundary logic, so `npm test` passes.
+- [x] Remove the debugging `console.log` calls from the landing page. They went when the landing page was rewritten for the server-side community total.
+- [x] Add the first Jest tests for the duration parsing and month boundary logic, so `npm test` passes.
   - [x] Duration parsing (`lib/duration.test.ts`); `npm test` now passes.
-  - [ ] Month boundaries (with the dashboard fix).
+  - [x] Month boundaries and today's date (`lib/dates.test.ts`). `npm test` also runs them under `TZ=America/Chicago` and `TZ=Asia/Tokyo`; the old UTC logic fails in both.
 
 ## 4. ThemeToggle (uncommitted work on branch wip/theme-toggle)
 

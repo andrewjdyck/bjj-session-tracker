@@ -1,9 +1,20 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { collection, query, where, getDocs } from 'firebase/firestore'
+import { collection, query, where, getDocs, QuerySnapshot } from 'firebase/firestore'
 import { useAuth, db } from '@/components/providers'
+import { monthRange } from '@/lib/dates'
+
+// Sum session durations, ignoring any legacy non-numeric values.
+function totalMinutes(snapshot: QuerySnapshot): number {
+  let total = 0
+  snapshot.forEach((doc) => {
+    const duration = Number(doc.data().duration)
+    if (Number.isFinite(duration)) total += duration
+  })
+  return total
+}
 
 export default function Dashboard() {
   const { user, loading } = useAuth()
@@ -11,53 +22,30 @@ export default function Dashboard() {
   const [monthlyDuration, setMonthlyDuration] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
 
-  const fetchSessionStats = useCallback(async () => {
-    if (user) {
-      const now = new Date()
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-
-      const sessionsRef = collection(db, 'users', user.uid, 'sessions')
-      
-      // Query for monthly sessions
-      const monthlyQuery = query(
-        sessionsRef,
-        where('date', '>=', firstDayOfMonth.toISOString().split('T')[0]),
-        where('date', '<=', lastDayOfMonth.toISOString().split('T')[0])
-      )
-
-      // Query for all sessions
-      const allSessionsQuery = query(sessionsRef)
-
-      // Execute both queries
-      const [monthlySnapshot, allSessionsSnapshot] = await Promise.all([
-        getDocs(monthlyQuery),
-        getDocs(allSessionsQuery)
-      ])
-
-      // Calculate monthly total
-      let monthlyTotal = 0
-      monthlySnapshot.forEach((doc) => {
-        monthlyTotal += doc.data().duration
-      })
-      setMonthlyDuration(monthlyTotal)
-
-      // Calculate all-time total
-      let allTimeTotal = 0
-      allSessionsSnapshot.forEach((doc) => {
-        allTimeTotal += doc.data().duration
-      })
-      setTotalDuration(allTimeTotal)
-    }
-  }, [user])
-
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return
+    if (!user) {
       router.push('/login')
-    } else if (user) {
-      fetchSessionStats()
+      return
     }
-  }, [user, loading, router, fetchSessionStats])
+
+    let cancelled = false
+    const { start, end } = monthRange() // local calendar month
+    const sessionsRef = collection(db, 'users', user.uid, 'sessions')
+    Promise.all([
+      getDocs(query(sessionsRef, where('date', '>=', start), where('date', '<=', end))),
+      getDocs(sessionsRef),
+    ])
+      .then(([monthly, allTime]) => {
+        if (cancelled) return
+        setMonthlyDuration(totalMinutes(monthly))
+        setTotalDuration(totalMinutes(allTime))
+      })
+      .catch((error) => console.error('Error loading session stats:', error))
+    return () => {
+      cancelled = true
+    }
+  }, [user, loading, router])
 
   if (loading) return <div>Loading...</div>
 
@@ -80,12 +68,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          {/* ... table content ... */}
-        </table>
-      </div>
     </div>
   )
 }
-

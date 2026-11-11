@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { MAX_SESSION_MINUTES, parseDuration } from '@/lib/duration'
+import { todayLocal } from '@/lib/dates'
 
 type SessionData = {
   date: string
@@ -19,7 +20,7 @@ export default function TrackSession() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [sessionData, setSessionData] = useState<SessionData>({
-    date: new Date().toISOString().split('T')[0],
+    date: todayLocal(),
     duration: '60',
     notes: '',
   })
@@ -62,7 +63,7 @@ export default function TrackSession() {
           .catch((error) => console.error('Failed to refresh community stats:', error))
         alert('Session logged successfully')
         setSessionData({
-          date: new Date().toISOString().split('T')[0],
+          date: todayLocal(),
           duration: '60',
           notes: '',
         })

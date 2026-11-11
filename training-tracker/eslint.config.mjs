@@ -6,11 +6,6 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   {
-    // TODO(tasks.md §3): pages fetch Firestore data in effects via async
-    // callbacks. Revisit when the data-fetching bugs are fixed.
-    rules: { "react-hooks/set-state-in-effect": "warn" },
-  },
-  {
     // CommonJS config files
     files: ["*.config.js", "jest.setup.js"],
     rules: { "@typescript-eslint/no-require-imports": "off" },
