@@ -20,8 +20,13 @@ Next steps after the November 2026 codebase review, in rough priority order.
 - [ ] Confirm the Firebase project, Auth and Firestore still exist and the app can connect to them (sign up, log in, log a session, view the dashboard).
   - [x] Dev (`train-tracker-dev`, project ID `train-tracker-e753c`): Auth and Firestore work, and the app was checked in the browser. The earlier login failure was a forgotten password.
   - [ ] Prod (`train-tracker-prod`): not checked yet.
-- [ ] Review the Vercel setup: which Firebase project and env vars each environment uses, and whether pushes to `main` deploy to production.
-- [ ] Find out what the old `bjj-session-tracker` and `bjj-session-tracker-dev` Firebase projects are (probably from the old React app), and delete them if unused.
+- [x] Review the Vercel setup: which Firebase project and env vars each environment uses, and whether pushes to `main` deploy to production.
+  - Project `training-tracker`, root `training-tracker`, Node 22.x. Production URL: https://training-tracker-au6esyxpatl.vercel.app
+  - Pushes to `main` deploy to **Production**; other branches get Preview deploys. Day-to-day work now happens on `dev`, and `main` is only for releases.
+  - Every deploy since Feb 2025 failed with `auth/invalid-api-key`, because the Vercel project had no env vars left. Production kept serving the 1 Feb 2025 build (`train-tracker-prod`).
+  - Fixed: added all 8 `NEXT_PUBLIC_*` vars. Production uses `train-tracker-prod`; Preview and Development use dev (`train-tracker-e753c`). Values checked against the local `.env` files.
+- [ ] Release today's work to production: check the Preview deploy from `dev`, merge `dev` into `main`, then check prod (item above).
+- [x] Find out what the old `bjj-session-tracker` and `bjj-session-tracker-dev` Firebase projects are. Neither app config uses them; they're from the old React app. Reviewed and OK to delete from the Firebase console.
 - [ ] Pull the deployed security rules into the repo (`firebase.json`, `.firebaserc`, `firestore.rules`) and deploy them from there.
 - [ ] Rules: users can read and write only `users/{uid}/**`; `stats/global` is publicly readable but not writable by clients.
 - [ ] Move the `stats/global` total update out of the browser and into a Cloud Function triggered when a session is created or deleted.
