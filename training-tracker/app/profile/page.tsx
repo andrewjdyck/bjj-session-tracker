@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-// import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useAuth, db } from '@/components/providers'
 import { Button } from '@/components/ui/button'
@@ -17,30 +16,40 @@ type ProfileData = {
   trainingDuration: string
 }
 
+const EMPTY_PROFILE: ProfileData = {
+  beltRank: '',
+  rankDate: '',
+  location: '',
+  school: '',
+  trainingDuration: '',
+}
+
+// Keep only the fields this form edits, defaulting missing ones to '' so
+// inputs stay controlled when a user document lacks a field.
+function toProfileData(data: Record<string, unknown>): ProfileData {
+  const result = { ...EMPTY_PROFILE }
+  for (const key of Object.keys(EMPTY_PROFILE) as (keyof ProfileData)[]) {
+    if (typeof data[key] === 'string') result[key] = data[key] as string
+  }
+  return result
+}
+
 export default function Profile() {
   const { user, loading } = useAuth()
-  // const router = useRouter() // this is never used. Remove it.
-  const [profileData, setProfileData] = useState<ProfileData>({
-    beltRank: '',
-    rankDate: '',
-    location: '',
-    school: '',
-    trainingDuration: '',
-  })
-
-  const fetchProfileData = useCallback(async () => {
-    if (user) {
-      const docRef = doc(db, 'users', user.uid)
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        setProfileData(docSnap.data() as ProfileData)
-      }
-    }
-  }, [user])
+  const [profileData, setProfileData] = useState<ProfileData>(EMPTY_PROFILE)
 
   useEffect(() => {
-    fetchProfileData()
-  }, [fetchProfileData])
+    if (!user) return
+    let cancelled = false
+    getDoc(doc(db, 'users', user.uid)).then((docSnap) => {
+      if (!cancelled && docSnap.exists()) {
+        setProfileData(toProfileData(docSnap.data()))
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [user])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -54,7 +63,8 @@ export default function Profile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (user) {
-      await setDoc(doc(db, 'users', user.uid), profileData)
+      // merge so fields this form doesn't edit (name, email, stripes, ...) are kept
+      await setDoc(doc(db, 'users', user.uid), profileData, { merge: true })
       alert('Profile updated successfully')
     }
   }

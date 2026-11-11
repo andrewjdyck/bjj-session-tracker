@@ -13,18 +13,24 @@ Next steps after the November 2026 codebase review, in rough priority order.
 - [ ] Hold for later: Tailwind 4, TypeScript 7, lucide-react 1.x, firebase 12/13.
 - [x] Done when `npm audit` shows no critical or high issues in runtime dependencies, and `tsc`, lint and build all pass.
   - One known exception: `@grpc/grpc-js` (high) comes from `@firebase/firestore`, which pins `~1.9.0` up to and including firebase 13. It's only used on the server, not in the browser. Accepted for now; check again with each Firebase update.
-- [ ] Follow-up for task 3: `react-hooks/set-state-in-effect` is lowered to a warning in `eslint.config.mjs` (dashboard and profile pages). Set it back to an error once data fetching is fixed.
+- [ ] Follow-up for task 3: `react-hooks/set-state-in-effect` is lowered to a warning in `eslint.config.mjs`. The profile page is fixed; only the dashboard is left. Set the rule back to an error once that's fixed.
 
 ## 2. Firestore backend
 
 - [ ] Confirm the Firebase project, Auth and Firestore still exist and the app can connect to them (sign up, log in, log a session, view the dashboard).
+  - [x] Dev (`train-tracker-dev`, project ID `train-tracker-e753c`): Auth and Firestore work, and the app was checked in the browser. The earlier login failure was a forgotten password.
+  - [ ] Prod (`train-tracker-prod`): not checked yet.
+- [ ] Review the Vercel setup: which Firebase project and env vars each environment uses, and whether pushes to `main` deploy to production.
+- [ ] Find out what the old `bjj-session-tracker` and `bjj-session-tracker-dev` Firebase projects are (probably from the old React app), and delete them if unused.
 - [ ] Pull the deployed security rules into the repo (`firebase.json`, `.firebaserc`, `firestore.rules`) and deploy them from there.
 - [ ] Rules: users can read and write only `users/{uid}/**`; `stats/global` is publicly readable but not writable by clients.
 - [ ] Move the `stats/global` total update out of the browser and into a Cloud Function triggered when a session is created or deleted.
-- [ ] Set up a separate dev Firebase project or the emulator, so local work doesn't touch prod data.
+- [x] Set up a separate dev Firebase project or the emulator, so local work doesn't touch prod data. This already exists: `.env.local` points to dev and `.env.production.local` to prod. The service account key in `scripts/` is for dev.
 - [ ] Check that the seed/wipe scripts still run against dev.
 
 ## 3. Bugs and rough edges
+
+- [x] Profile: a user document missing a field (e.g. `rankDate`) caused the "controlled to uncontrolled input" warning, and saving overwrote the whole user document. Fixed: missing fields now default to `''`, and saving uses `merge: true`.
 
 - [ ] `track-session/page.tsx`: move the `router.push('/login')` redirect out of render and into an effect.
 - [ ] Duration input: stop `parseInt('')` from producing `NaN`; validate that it's a positive whole number before saving.
