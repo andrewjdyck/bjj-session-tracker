@@ -1,4 +1,6 @@
-import admin from 'firebase-admin';
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -13,14 +15,14 @@ const serviceAccount = JSON.parse(
 );
 
 // Initialize Firebase Admin SDK
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(serviceAccount),
   });
 }
 
-const auth = admin.auth();
-const db = admin.firestore();
+const auth = getAuth();
+const db = getFirestore();
 
 async function createOrGetUser(email: string, password: string, name: string) {
   try {
@@ -54,14 +56,14 @@ async function seedDatabase() {
       name: "John Doe",
       email: "johndoe@example.com",
       role: "admin",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     await db.collection("users").doc(user2UID).set({
       name: "Jane Smith",
       email: "janedoe@example.com",
       role: "user",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     console.log("Firestore seeded with test users.");

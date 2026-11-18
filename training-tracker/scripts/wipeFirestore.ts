@@ -1,17 +1,19 @@
-import admin from "firebase-admin";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 import fs from "fs";
 
 // Load service account credentials
 const serviceAccount = JSON.parse(fs.readFileSync("./scripts/firebase-service-account.json", "utf8"));
 
 // Initialize Firebase Admin
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(serviceAccount),
   });
 }
 
-const db = admin.firestore();
+const db = getFirestore();
 
 // Function to delete all documents in a collection
 async function deleteCollection(collectionPath: string) {
@@ -30,11 +32,11 @@ async function deleteCollection(collectionPath: string) {
 
 async function deleteAllUsers() {
   // Get all users (Firebase limits to 1000 at a time)
-  const listUsersResult = await admin.auth().listUsers();
+  const listUsersResult = await getAuth().listUsers();
   
   // Create an array of promises for all user deletions
   const deleteUserPromises = listUsersResult.users.map(async (userRecord) => {
-    await admin.auth().deleteUser(userRecord.uid);
+    await getAuth().deleteUser(userRecord.uid);
     console.log(`Deleted user: ${userRecord.uid}`);
   });
   
